@@ -41,9 +41,16 @@ export default function GuidePage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {guides.map((guide) => {
-            const spesialisasi = guide.spesialisasi ? JSON.parse(guide.spesialisasi) : [];
+            // MongoDB already returns arrays, no need to parse
+            const sertifikasi = Array.isArray(guide.sertifikasi) 
+              ? guide.sertifikasi 
+              : (guide.sertifikasi ? [guide.sertifikasi] : []);
+            
+            const spesialisasi = Array.isArray(guide.spesialisasi)
+              ? guide.spesialisasi
+              : (guide.spesialisasi ? [guide.spesialisasi] : []);
             
             return (
               <Link

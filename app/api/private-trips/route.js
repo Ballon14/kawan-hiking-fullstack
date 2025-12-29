@@ -1,15 +1,26 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
-import { requireAdmin, requireAuth } from '@/lib/auth';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function GET() {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM private_trips ORDER BY id DESC'
-    );
-    return NextResponse.json(rows);
-  } catch (err) {
-    console.error('Private trips error:', err);
+    const db = await getDb();
+    const trips = await db.collection('private_trips')
+      .find({})
+      .sort({ _id: -1 })
+      .toArray();
+    
+    const formattedTrips = trips.map(trip => ({
+      ...trip,
+      id: trip._id.toString(),
+      id_destinasi: trip.id_destinasi?.toString(),
+      id_user: trip.id_user?.toString(),
+      _id: undefined
+    }));
+    
+    return NextResponse.json(formattedTrips);
+  } catch (error) {
+    console.error('Private trips error:', error);
     return NextResponse.json(
       { error: 'Operation failed' },
       { status: 500 }
@@ -19,42 +30,32 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    await requireAdmin();
-    const {
-      destinasi,
-      min_peserta,
-      harga_paket,
-      paket_pilihan,
-      custom_form,
-      estimasi_biaya,
-      dokumentasi,
-      dilaksanakan,
-    } = await request.json();
+    const data = await request.json();
 
-    const [result] = await pool.query(
-      'INSERT INTO private_trips (destinasi, min_peserta, harga_paket, paket_pilihan, custom_form, estimasi_biaya, dokumentasi, dilaksanakan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        destinasi,
-        min_peserta,
-        harga_paket,
-        JSON.stringify(paket_pilihan),
-        JSON.stringify(custom_form),
-        estimasi_biaya || null,
-        JSON.stringify(dokumentasi),
-        dilaksanakan || 0,
-      ]
-    );
-    return NextResponse.json({ id: result.insertId }, { status: 201 });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const db = await getDb();
+    
+    // Convert ObjectIds if present
+    if (data.id_user) {
+      data.id_user = new ObjectId(data.id_user);
     }
-    if (err.message === 'Forbidden') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (data.id_destinasi) {
+      data.id_destinasi = new ObjectId(data.id_destinasi);
     }
-    console.error('Private trips error:', err);
+
+    const result = await db.collection('private_trips').insertOne({
+      ...data,
+      dilaksanakan: data.dilaksanakan || false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    return NextResponse.json({ 
+      id: result.insertedId.toString() 
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Create private trip error:', error);
     return NextResponse.json(
-      { error: 'Operation failed' },
+      { error: 'Failed to create trip' },
       { status: 500 }
     );
   }

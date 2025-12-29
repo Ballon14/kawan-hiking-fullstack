@@ -1,15 +1,25 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getDb } from '@/lib/mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM destinations ORDER BY id DESC'
-    );
-    return NextResponse.json(rows);
-  } catch (err) {
-    console.error('Destinations error:', err);
+    const db = await getDb();
+    const destinations = await db.collection('destinations')
+      .find({})
+      .sort({ _id: -1 })
+      .toArray();
+    
+    // Convert _id to id for frontend compatibility
+    const formattedDestinations = destinations.map(dest => ({
+      ...dest,
+      id: dest._id.toString(),
+      _id: undefined
+    }));
+    
+    return NextResponse.json(formattedDestinations);
+  } catch (error) {
+    console.error('Destinations error:', error);
     return NextResponse.json(
       { error: 'Operation failed' },
       { status: 500 }
@@ -40,31 +50,31 @@ export async function POST(request) {
       );
     }
 
-    const [result] = await pool.query(
-      'INSERT INTO destinations (nama_destinasi, lokasi, ketinggian, kesulitan, durasi, deskripsi, jalur_pendakian, fasilitas, tips, gambar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        nama_destinasi,
-        lokasi || null,
-        ketinggian || null,
-        kesulitan || null,
-        durasi || null,
-        deskripsi || null,
-        jalur_pendakian ? JSON.stringify(jalur_pendakian) : null,
-        fasilitas ? JSON.stringify(fasilitas) : null,
-        tips ? JSON.stringify(tips) : null,
-        gambar || null,
-      ]
-    );
+    const db = await getDb();
+    const result = await db.collection('destinations').insertOne({
+      nama_destinasi,
+      lokasi: lokasi || null,
+      ketinggian: ketinggian || null,
+      kesulitan: kesulitan || null,
+      durasi: durasi || null,
+      deskripsi: deskripsi || null,
+      jalur_pendakian: jalur_pendakian || null,
+      fasilitas: fasilitas || null,
+      tips: tips || null,
+      gambar: gambar || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     
-    return NextResponse.json({ id: result.insertId }, { status: 201 });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
+    return NextResponse.json({ id: result.insertedId.toString() }, { status: 201 });
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (err.message === 'Forbidden') {
+    if (error.message === 'Forbidden') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    console.error('Create destination error:', err);
+    console.error('Create destination error:', error);
     return NextResponse.json(
       { error: 'Failed to create destination' },
       { status: 500 }

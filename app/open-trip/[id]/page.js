@@ -63,15 +63,14 @@ export default function OpenTripDetailPage() {
 
     setRegistering(true);
     try {
-      await apiPost('/api/open-trips/register', {
-        id_trip: trip.id,
-        id_user: user.id
+      await apiPost(`/api/open-trips/${trip.id}/register`, {
+        jumlah_peserta: 1 // Default 1 participant, can be customized later
       });
-      alert('Berhasil mendaftar! Silakan cek email untuk informasi pembayaran.');
-      fetchTripDetail(); // Refresh data
+      alert('Berhasil mendaftar! Silakan lanjutkan ke pembayaran.');
+      router.push(`/payment/open-trip/${trip.id}`); // Redirect to payment
     } catch (error) {
       console.error('Error:', error);
-      alert('Gagal mendaftar. Silakan coba lagi.');
+      alert(error.message || 'Gagal mendaftar. Silakan coba lagi.');
     } finally {
       setRegistering(false);
     }

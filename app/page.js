@@ -1,7 +1,30 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { apiGet } from '@/lib/api-client';
 
 export default function Home() {
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDestinations();
+  }, []);
+
+  async function fetchDestinations() {
+    try {
+      const data = await apiGet('/api/destinations');
+      // Get first 2 destinations for homepage
+      setDestinations(data.slice(0, 2));
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero Section with Background Image */}
@@ -75,60 +98,52 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Destination 1 - Semeru */}
-            <div className="group image-overlay rounded-3xl overflow-hidden card-shine hover-lift animate-scale-in">
-              <div className="relative h-96">
-                <Image
-                  src="/destination-semeru.png"
-                  alt="Mount Semeru"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                  <h3 className="text-3xl font-bold text-white mb-2">Gunung Semeru</h3>
-                  <p className="text-emerald-300 font-semibold mb-3">Atap Jawa - 3,676 MDPL</p>
-                  <p className="text-slate-200 mb-4">Gunung tertinggi di Pulau Jawa dengan pemandangan kawah Jonggring Saloko yang memukau</p>
-                  <Link 
-                    href="/destinasi" 
-                    className="inline-block px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-500 transition-colors"
-                  >
-                    Lihat Detail →
-                  </Link>
-                </div>
-              </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 mx-auto"></div>
             </div>
-
-            {/* Destination 2 - Bromo */}
-            <div className="group image-overlay rounded-3xl overflow-hidden card-shine hover-lift animate-scale-in delay-100">
-              <div className="relative h-96">
-                <Image
-                  src="/destination-bromo.png"
-                  alt="Mount Bromo"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                  <h3 className="text-3xl font-bold text-white mb-2">Gunung Bromo</h3>
-                  <p className="text-emerald-300 font-semibold mb-3">Sunrise Terbaik - 2,329 MDPL</p>
-                  <p className="text-slate-200 mb-4">Nikmati sunrise spektakuler dengan lautan pasir dan pemandangan yang menakjubkan</p>
-                  <Link 
-                    href="/destinasi" 
-                    className="inline-block px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-500 transition-colors"
-                  >
-                    Lihat Detail →
-                  </Link>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-8">
+              {destinations.map((dest) => (
+                <div key={dest.id} className="group image-overlay rounded-3xl overflow-hidden card-shine hover-lift animate-scale-in">
+                  <div className="relative h-96">
+                    {dest.gambar ? (
+                      <Image
+                        src={dest.gambar}
+                        alt={dest.nama_destinasi}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center text-8xl">
+                        🏔️
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                      <h3 className="text-3xl font-bold text-white mb-2">{dest.nama_destinasi}</h3>
+                      <p className="text-emerald-300 font-semibold mb-3">
+                        {dest.lokasi} {dest.ketinggian && `- ${dest.ketinggian.toLocaleString()} MDPL`}
+                      </p>
+                      <p className="text-slate-200 mb-4 line-clamp-2">{dest.deskripsi}</p>
+                      <Link 
+                        href={`/destinasi/${dest.id}`}
+                        className="inline-block px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-500 transition-colors"
+                      >
+                        Lihat Detail →
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
+          )}
 
-          <div className="text-center mt-12 animate-fade-in">
-            <Link 
-              href="/destinasi" 
-              className="inline-block px-8 py-4 glass-card text-white font-semibold rounded-xl hover-lift border-2 border-slate-700 hover:border-emerald-500"
+          <div className="text-center mt-12">
+            <Link
+              href="/destinasi"
+              className="inline-block px-8 py-4 glass-card text-white font-semibold rounded-xl hover-lift border border-emerald-500"
             >
-              Lihat Semua Destinasi →
+              Lihat Semua Destinasi +
             </Link>
           </div>
         </div>
@@ -138,97 +153,59 @@ export default function Home() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 animate-fade-in-up">
-            Mengapa <span className="gradient-text">Kawan Hiking</span>?
+            <span className="text-white">Kenapa Memilih </span>
+            <span className="gradient-text">Kawan Hiking?</span>
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="glass-card rounded-3xl p-10 card-shine hover-lift animate-fade-in-up delay-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl flex items-center justify-center mb-6 animate-float">
-                <span className="text-4xl">🏔️</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Destinasi Terbaik</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Pilihan destinasi pendakian terbaik di seluruh Indonesia dengan pemandangan yang menakjubkan dan pengalaman tak terlupakan.
-              </p>
-            </div>
-            <div className="glass-card rounded-3xl p-10 card-shine hover-lift animate-fade-in-up delay-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl flex items-center justify-center mb-6 animate-float" style={{animationDelay: '0.5s'}}>
-                <span className="text-4xl">👨‍🏫</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Guide Berpengalaman</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Guide profesional dan bersertifikat yang akan memandu perjalanan Anda dengan aman, ramah, dan penuh dedikasi.
-              </p>
-            </div>
-            <div className="glass-card rounded-3xl p-10 card-shine hover-lift animate-fade-in-up delay-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl flex items-center justify-center mb-6 animate-float" style={{animationDelay: '1s'}}>
-                <span className="text-4xl">💰</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Harga Terjangkau</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Paket trip dengan harga transparan dan terjangkau tanpa biaya tersembunyi. Kualitas terbaik dengan harga bersahabat.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Community Section */}
-      <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/hiking-community.png"
-            alt="Hiking Community"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-emerald-900/90 to-slate-900/95"></div>
-        </div>
-        
-        <div className="relative max-w-4xl mx-auto text-center z-10">
-          <div className="animate-fade-in-up">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Bergabung dengan Komunitas
-            </h2>
-            <p className="text-xl text-emerald-100 mb-4">
-              Lebih dari <span className="text-emerald-400 font-bold text-3xl">1,000+</span> pendaki telah mempercayai kami
-            </p>
-            <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
-              Jadilah bagian dari petualangan seru dan temukan teman-teman baru yang memiliki passion yang sama dalam menjelajahi alam Indonesia
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-8 mb-12 animate-scale-in delay-200">
-            <div className="glass-card rounded-2xl p-6">
-              <div className="text-4xl font-bold gradient-text mb-2">50+</div>
-              <div className="text-slate-300">Destinasi</div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="glass-card rounded-3xl p-8 hover-lift text-center">
+              <div className="text-6xl mb-4">🏔️</div>
+              <h3 className="text-2xl font-bold text-white mb-4">Guide Berpengalaman</h3>
+              <p className="text-slate-300">
+                Tim guide profesional dengan pengalaman bertahun-tahun di berbagai gunung Indonesia
+              </p>
             </div>
-            <div className="glass-card rounded-2xl p-6">
-              <div className="text-4xl font-bold gradient-text mb-2">100+</div>
-              <div className="text-slate-300">Trip/Tahun</div>
+
+            <div className="glass-card rounded-3xl p-8 hover-lift text-center">
+              <div className="text-6xl mb-4">✅</div>
+              <h3 className="text-2xl font-bold text-white mb-4">Keamanan Terjamin</h3>
+              <p className="text-slate-300">
+                Dilengkapi asuransi perjalanan dan prosedur keselamatan yang ketat untuk kenyamanan Anda
+              </p>
             </div>
-            <div className="glass-card rounded-2xl p-6">
-              <div className="text-4xl font-bold gradient-text mb-2">4.9★</div>
-              <div className="text-slate-300">Rating</div>
+
+            <div className="glass-card rounded-3xl p-8 hover-lift text-center">
+              <div className="text-6xl mb-4">💰</div>
+              <h3 className="text-2xl font-bold text-white mb-4">Harga Terjangkau</h3>
+              <p className="text-slate-300">
+                Paket open trip dan private trip dengan harga kompetitif dan fasilitas lengkap
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-emerald-800 to-emerald-900">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-600 rounded-3xl p-12 md:p-16 shadow-2xl hover-lift animate-scale-in">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Siap Untuk Petualangan?
-            </h2>
-            <p className="text-xl text-emerald-50 mb-10 max-w-2xl mx-auto">
-              Daftar sekarang dan mulai jelajahi destinasi pendakian terbaik di Indonesia bersama Kawan Hiking
-            </p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Siap Memulai Petualangan?
+          </h2>
+          <p className="text-xl text-emerald-100 mb-10">
+            Daftar sekarang dan rasakan pengalaman pendakian yang tak terlupakan
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/register"
-              className="inline-block px-10 py-5 bg-white text-emerald-700 font-bold text-lg rounded-2xl hover:bg-emerald-50 transition-all shadow-xl hover-lift hover:shadow-2xl"
+              href="/open-trip"
+              className="px-10 py-5 bg-white text-emerald-900 font-bold text-lg rounded-2xl hover:bg-slate-100 transition-all shadow-2xl hover-lift"
             >
-              🚀 Daftar Gratis Sekarang
+              Lihat Open Trip
+            </Link>
+            <Link
+              href="/private-trip"
+              className="px-10 py-5 border-2 border-white text-white font-bold text-lg rounded-2xl hover:bg-white/10 transition-all hover-lift"
+            >
+              Request Private Trip
             </Link>
           </div>
         </div>

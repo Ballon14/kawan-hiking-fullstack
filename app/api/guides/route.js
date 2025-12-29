@@ -1,15 +1,24 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getDb } from '@/lib/mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM guides ORDER BY id DESC'
-    );
-    return NextResponse.json(rows);
-  } catch (err) {
-    console.error('Guides error:', err);
+    const db = await getDb();
+    const guides = await db.collection('guides')
+      .find({})
+      .sort({ _id: -1 })
+      .toArray();
+    
+    const formattedGuides = guides.map(guide => ({
+      ...guide,
+      id: guide._id.toString(),
+      _id: undefined
+    }));
+    
+    return NextResponse.json(formattedGuides);
+  } catch (error) {
+    console.error('Guides error:', error);
     return NextResponse.json(
       { error: 'Operation failed' },
       { status: 500 }
@@ -20,43 +29,33 @@ export async function GET() {
 export async function POST(request) {
   try {
     await requireAdmin();
-    const {
-      nama,
-      bio,
-      pengalaman,
-      sertifikasi,
-      foto,
-      spesialisasi,
-    } = await request.json();
+    const data = await request.json();
 
-    if (!nama) {
+    if (!data.nama) {
       return NextResponse.json(
         { error: 'nama required' },
         { status: 400 }
       );
     }
 
-    const [result] = await pool.query(
-      'INSERT INTO guides (nama, bio, pengalaman, sertifikasi, foto, spesialisasi) VALUES (?, ?, ?, ?, ?, ?)',
-      [
-        nama,
-        bio || null,
-        pengalaman || null,
-        sertifikasi ? JSON.stringify(sertifikasi) : null,
-        foto || null,
-        spesialisasi ? JSON.stringify(spesialisasi) : null,
-      ]
-    );
+    const db = await getDb();
+    const result = await db.collection('guides').insertOne({
+      ...data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     
-    return NextResponse.json({ id: result.insertId }, { status: 201 });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
+    return NextResponse.json({ 
+      id: result.insertedId.toString() 
+    }, { status: 201 });
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (err.message === 'Forbidden') {
+    if (error.message === 'Forbidden') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    console.error('Create guide error:', err);
+    console.error('Create guide error:', error);
     return NextResponse.json(
       { error: 'Failed to create guide' },
       { status: 500 }

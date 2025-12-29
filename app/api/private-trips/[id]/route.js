@@ -1,77 +1,66 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import { requireAdmin } from '@/lib/auth';
 
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
-    const [rows] = await pool.query(
-      'SELECT * FROM private_trips WHERE id=?',
-      [id]
-    );
-    if (rows.length === 0) {
+    const db = await getDb();
+    
+    const trip = await db.collection('private_trips').findOne({
+      _id: new ObjectId(id)
+    });
+    
+    if (!trip) {
       return NextResponse.json({ error: 'Trip not found' }, { status: 404 });
     }
-    return NextResponse.json(rows[0]);
-  } catch (err) {
-    console.error('Private trips error:', err);
+    
+    return NextResponse.json({
+      ...trip,
+      id: trip._id.toString(),
+      _id: undefined
+    });
+  } catch (error) {
+    console.error('Private trips error:', error);
     return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
   }
 }
 
 export async function PUT(request, { params }) {
   try {
-    const user = await requireAdmin();
+    await requireAdmin();
     const { id } = await params;
-    const {
-      destinasi,
-      min_peserta,
-      harga_paket,
-      paket_pilihan,
-      custom_form,
-      estimasi_biaya,
-      dokumentasi,
-      status,
-      dilaksanakan,
-    } = await request.json();
+    const data = await request.json();
 
-    const [oldTripRows] = await pool.query('SELECT * FROM private_trips WHERE id=?', [id]);
-    const oldStatus = oldTripRows[0]?.status;
-    const oldDilaksanakan = oldTripRows[0]?.dilaksanakan || 0;
-    const newDilaksanakan = dilaksanakan !== undefined ? dilaksanakan : oldDilaksanakan;
+    const db = await getDb();
+    
+    const updateFields = { ...data };
+    delete updateFields.id;
+    delete updateFields._id;
+    updateFields.updatedAt = new Date();
 
-    const [result] = await pool.query(
-      'UPDATE private_trips SET destinasi=?, min_peserta=?, harga_paket=?, paket_pilihan=?, custom_form=?, estimasi_biaya=?, dokumentasi=?, status=?, dilaksanakan=? WHERE id=?',
-      [
-        destinasi,
-        min_peserta,
-        harga_paket,
-        JSON.stringify(paket_pilihan),
-        JSON.stringify(custom_form),
-        estimasi_biaya || null,
-        JSON.stringify(dokumentasi),
-        status || oldStatus,
-        newDilaksanakan,
-        id,
-      ]
+    const result = await db.collection('private_trips').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateFields }
     );
 
-    if (newDilaksanakan === 1 && oldDilaksanakan === 0) {
-      await pool.query(
-        'INSERT INTO history (username, role, action, trip_type, trip_id, request_body) VALUES (?, ?, ?, ?, ?, ?)',
-        [user.username, user.role, 'complete', 'private_trip', id, JSON.stringify({ destinasi, min_peserta })]
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { error: 'Trip not found' },
+        { status: 404 }
       );
     }
 
-    return NextResponse.json({ affectedRows: result.affectedRows });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
+    return NextResponse.json({ affectedRows: result.modifiedCount });
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (err.message === 'Forbidden') {
+    if (error.message === 'Forbidden') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    console.error('Private trips error:', err);
+    console.error('Private trips error:', error);
     return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
   }
 }
@@ -81,52 +70,52 @@ export async function PATCH(request, { params }) {
     const { id } = await params;
     const data = await request.json();
 
-    // Build dynamic update query for partial updates
-    const updates = [];
-    const values = [];
+    const db = await getDb();
+    const updateFields = {};
 
+    // Handle specific fields
     if (data.status !== undefined) {
-      updates.push('status = ?');
-      values.push(data.status);
+      updateFields.status = data.status;
     }
-
     if (data.dilaksanakan !== undefined) {
-      updates.push('dilaksanakan = ?');
-      values.push(data.dilaksanakan);
+      updateFields.dilaksanakan = data.dilaksanakan;
+    }
+    if (data.custom_form !== undefined) {
+      updateFields.custom_form = data.custom_form;
     }
 
-    if (updates.length === 0) {
+    if (Object.keys(updateFields).length === 0) {
       return NextResponse.json(
         { error: 'No fields to update' },
         { status: 400 }
       );
     }
 
-    // Add updated_at timestamp
-    updates.push('updated_at = NOW()');
-    values.push(id);
+    updateFields.updatedAt = new Date();
 
-    const [result] = await pool.query(
-      `UPDATE private_trips SET ${updates.join(', ')} WHERE id = ?`,
-      values
+    const result = await db.collection('private_trips').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateFields }
     );
 
-    if (result.affectedRows === 0) {
+    if (result.matchedCount === 0) {
       return NextResponse.json(
         { error: 'Trip not found' },
         { status: 404 }
       );
     }
 
-    // Return updated trip data
-    const [rows] = await pool.query(
-      'SELECT * FROM private_trips WHERE id = ?',
-      [id]
-    );
+    const updatedTrip = await db.collection('private_trips').findOne({
+      _id: new ObjectId(id)
+    });
 
-    return NextResponse.json(rows[0]);
-  } catch (err) {
-    console.error('PATCH private trip error:', err);
+    return NextResponse.json({
+      ...updatedTrip,
+      id: updatedTrip._id.toString(),
+      _id: undefined
+    });
+  } catch (error) {
+    console.error('PATCH private trip error:', error);
     return NextResponse.json(
       { error: 'Failed to update trip' },
       { status: 500 }
@@ -138,16 +127,21 @@ export async function DELETE(request, { params }) {
   try {
     await requireAdmin();
     const { id } = await params;
-    const [result] = await pool.query('DELETE FROM private_trips WHERE id=?', [id]);
-    return NextResponse.json({ affectedRows: result.affectedRows });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
+    
+    const db = await getDb();
+    const result = await db.collection('private_trips').deleteOne({
+      _id: new ObjectId(id)
+    });
+    
+    return NextResponse.json({ affectedRows: result.deletedCount });
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (err.message === 'Forbidden') {
+    if (error.message === 'Forbidden') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    console.error('Private trips error:', err);
+    console.error('Private trips error:', error);
     return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
   }
 }

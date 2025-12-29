@@ -1,68 +1,111 @@
 import { NextResponse } from 'next/server';
-import midtransClient from 'midtrans-client';
-import pool from '@/lib/db';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
+import crypto from 'crypto';
 
 export async function POST(request) {
   try {
-    const notificationJson = await request.json();
+    const body = await request.json();
+    
+    // Verify Midtrans signature
+    const serverKey = process.env.MIDTRANS_SERVER_KEY;
+    const {
+      order_id,
+      status_code,
+      gross_amount,
+      signature_key,
+      transaction_status,
+      fraud_status,
+      payment_type,
+      transaction_id,
+    } = body;
 
-    const apiClient = new midtransClient.CoreApi({
-      isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-      serverKey: process.env.MIDTRANS_SERVER_KEY,
-      clientKey: process.env.MIDTRANS_CLIENT_KEY,
-    });
+    // Generate signature for verification
+    const hash = crypto
+      .createHash('sha512')
+      .update(`${order_id}${status_code}${gross_amount}${serverKey}`)
+      .digest('hex');
 
-    const statusResponse = await apiClient.transaction.notification(notificationJson);
-
-    const orderId = statusResponse.order_id;
-    const transactionStatus = statusResponse.transaction_status;
-    const fraudStatus = statusResponse.fraud_status;
-
-    const orderIdMatch = orderId.match(/^OPEN-TRIP-(\d+)-/);
-    if (!orderIdMatch) {
-      return NextResponse.json({ error: 'Invalid order_id format' }, { status: 400 });
+    // Verify signature
+    if (hash !== signature_key) {
+      console.error('Invalid signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
     }
 
-    const registrationId = parseInt(orderIdMatch[1]);
+    const db = await getDb();
 
-    const [registrationRows] = await pool.query(
-      'SELECT * FROM open_trip_registrations WHERE id = ?',
-      [registrationId]
-    );
-
-    if (registrationRows.length === 0) {
-      return NextResponse.json({ error: 'Registration not found' }, { status: 404 });
-    }
-
+    // Determine payment status
     let paymentStatus = 'pending';
-    let registrationStatus = 'pending';
-
-    if (transactionStatus === 'capture') {
-      if (fraudStatus === 'challenge') {
-        paymentStatus = 'pending';
-      } else if (fraudStatus === 'accept') {
-        paymentStatus = 'paid';
-        registrationStatus = 'confirmed';
+    if (transaction_status === 'capture' || transaction_status === 'settlement') {
+      if (fraud_status === 'accept' || fraud_status === undefined) {
+        paymentStatus = 'settlement';
       }
-    } else if (transactionStatus === 'settlement') {
-      paymentStatus = 'paid';
-      registrationStatus = 'confirmed';
-    } else if (transactionStatus === 'pending') {
+    } else if (transaction_status === 'pending') {
       paymentStatus = 'pending';
-    } else if (['deny', 'expire', 'cancel'].includes(transactionStatus)) {
-      paymentStatus = 'expired';
+    } else if (
+      transaction_status === 'deny' ||
+      transaction_status === 'expire' ||
+      transaction_status === 'cancel'
+    ) {
+      paymentStatus = 'failed';
     }
 
-    await pool.query(
-      `UPDATE open_trip_registrations 
-       SET payment_status = ?, status = ?, payment_reference = ?
-       WHERE id = ?`,
-      [paymentStatus, registrationStatus, orderId, registrationId]
+    // Update payment record
+    const payment = await db.collection('payments').findOne({ order_id });
+
+    if (!payment) {
+      console.error('Payment not found:', order_id);
+      return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
+    }
+
+    await db.collection('payments').updateOne(
+      { order_id },
+      {
+        $set: {
+          status: paymentStatus,
+          transaction_id,
+          payment_method: payment_type,
+          midtrans_response: body,
+          updatedAt: new Date(),
+        },
+      }
     );
 
-    return NextResponse.json({ message: 'Webhook processed successfully' });
-  } catch (err) {
-    console.error('Webhook error:', err);
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+    // If payment successful, update trip status
+    if (paymentStatus === 'settlement') {
+      if (payment.payment_type === 'open_trip') {
+        // Create registration record
+        await db.collection('open_trip_registrations').insertOne({
+          trip_id: payment.trip_id,
+          user_id: payment.user_id,
+          payment_id: payment._id,
+          jumlah_peserta: payment.participants,
+          total_harga: payment.amount,
+          payment_status: 'settlement',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      } else if (payment.payment_type === 'private_trip') {
+        // Update private trip payment status
+        await db.collection('private_trips').updateOne(
+          { _id: payment.trip_id },
+          {
+            $set: {
+              'custom_form.payment_status': 'paid',
+              'custom_form.payment_id': payment._id,
+              updatedAt: new Date(),
+            },
+          }
+        );
+      }
+    }
+
+    return NextResponse.json({ status: 'OK' });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return NextResponse.json(
+      { error: 'Webhook processing failed' },
+      { status: 500 }
+    );
   }
 }

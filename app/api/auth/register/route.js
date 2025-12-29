@@ -1,67 +1,70 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import pool from '@/lib/db';
+import { getDb } from '@/lib/mongodb';
+import { createToken } from '@/lib/auth';
 
 export async function POST(request) {
   try {
-    const { username, password, role, email, nomor_hp, alamat } = await request.json();
+    const { username, email, password } = await request.json();
 
-    if (!username || !password) {
+    if (!username || !email || !password) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        { error: 'All fields are required' },
         { status: 400 }
       );
     }
 
-    // Check if username already exists
-    const [users] = await pool.query(
-      'SELECT id FROM users WHERE username=?',
-      [username]
-    );
-    if (users.length > 0) {
+    if (password.length < 6) {
       return NextResponse.json(
-        { error: 'Username already exists' },
+        { error: 'Password must be at least 6 characters' },
         { status: 400 }
       );
     }
 
-    // Check if email already exists
-    if (email) {
-      const [emailUsers] = await pool.query(
-        'SELECT id FROM users WHERE email=?',
-        [email]
-      );
-      if (emailUsers.length > 0) {
-        return NextResponse.json(
-          { error: 'Email already exists' },
-          { status: 400 }
-        );
-      }
-    }
+    const db = await getDb();
+    
+    // Check if username or email already exists
+    const existingUser = await db.collection('users').findOne({ 
+      $or: [{ username }, { email }] 
+    });
 
-    // Sanitize input
-    const sanitizedUsername = username.trim().substring(0, 50);
-    const sanitizedEmail = email ? email.trim().substring(0, 255) : null;
-    const sanitizedNomorHp = nomor_hp ? nomor_hp.trim().substring(0, 20) : null;
-    const sanitizedAlamat = alamat ? alamat.trim().substring(0, 500) : null;
-
-    const hash = await bcrypt.hash(password, 12);
-    const userRole = role === 'admin' ? 'admin' : 'user';
-
-    await pool.query(
-      'INSERT INTO users (username, password_hash, role, email, nomor_hp, alamat) VALUES (?, ?, ?, ?, ?, ?)',
-      [sanitizedUsername, hash, userRole, sanitizedEmail, sanitizedNomorHp, sanitizedAlamat]
-    );
-
-    return NextResponse.json({ message: 'Registered successfully' });
-  } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') {
+    if (existingUser) {
       return NextResponse.json(
         { error: 'Username or email already exists' },
-        { status: 400 }
+        { status: 409 }
       );
     }
-    console.error('Register error:', err);
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert new user  
+    const result = await db.collection('users').insertOne({
+      username,
+      email,
+      password: hashedPassword,
+      role: 'user',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const token = createToken(
+      result.insertedId.toString(),
+      username,
+      'user'
+    );
+
+    return NextResponse.json({
+      token,
+      user: {
+        id: result.insertedId.toString(),
+        username,
+        email,
+        role: 'user',
+      },
+    });
+  } catch (error) {
+    console.error('Register error:', error);
     return NextResponse.json(
       { error: 'Registration failed' },
       { status: 500 }

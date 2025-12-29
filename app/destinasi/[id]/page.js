@@ -43,9 +43,10 @@ export default function DetailDestinasiPage({ params }) {
     );
   }
 
-  const fasilitas = destination.fasilitas ? JSON.parse(destination.fasilitas) : [];
-  const tips = destination.tips ? JSON.parse(destination.tips) : [];
-  const jalur = destination.jalur_pendakian ? JSON.parse(destination.jalur_pendakian) : [];
+  // MongoDB returns arrays directly, no need to parse
+  const fasilitas = Array.isArray(destination.fasilitas) ? destination.fasilitas : [];
+  const tips = Array.isArray(destination.tips) ? destination.tips : [];
+  const jalur = Array.isArray(destination.jalur_pendakian) ? destination.jalur_pendakian : [];
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -96,6 +97,20 @@ export default function DetailDestinasiPage({ params }) {
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-white mb-3">Deskripsi</h2>
                 <p className="text-slate-300 leading-relaxed">{destination.deskripsi}</p>
+              </div>
+            )}
+
+            {jalur.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-white mb-3">Jalur Pendakian</h2>
+                <div className="space-y-2">
+                  {jalur.map((j, i) => (
+                    <div key={i} className="flex items-center">
+                      <span className="text-emerald-400 mr-2">→</span>
+                      <span className="text-slate-300">{j}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

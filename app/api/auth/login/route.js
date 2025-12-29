@@ -1,58 +1,56 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import pool from '@/lib/db';
-import { signToken } from '@/lib/auth';
+import { getDb } from '@/lib/mongodb';
+import { createToken } from '@/lib/auth';
 
 export async function POST(request) {
   try {
     const { username, password } = await request.json();
-    
-    const inputUsername = (username || '').trim();
-    if (!inputUsername || !password) {
+
+    if (!username || !password) {
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
       );
     }
 
-    // Find user with case-insensitive username
-    const [users] = await pool.query(
-      'SELECT * FROM users WHERE LOWER(username)=LOWER(?)',
-      [inputUsername]
+    const db = await getDb();
+    const user = await db.collection('users').findOne({ username });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
+
+    const token = createToken(
+      user._id.toString(),
+      user.username,
+      user.role
     );
-
-    if (users.length === 0) {
-      return NextResponse.json(
-        { error: 'Username atau password salah' },
-        { status: 401 }
-      );
-    }
-
-    const user = users[0];
-    const valid = await bcrypt.compare(password, user.password_hash);
-    
-    if (!valid) {
-      return NextResponse.json(
-        { error: 'Username atau password salah' },
-        { status: 401 }
-      );
-    }
-
-    const token = signToken({
-      username: user.username,
-      role: user.role,
-      id: user.id
-    });
 
     return NextResponse.json({
       token,
-      username: user.username,
-      role: user.role
+      user: {
+        id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
-  } catch (err) {
-    console.error('Login error:', err);
+  } catch (error) {
+    console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Login failed' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

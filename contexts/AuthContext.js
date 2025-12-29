@@ -39,12 +39,20 @@ export function AuthProvider({ children }) {
         return { success: false, error: data.error || 'Login failed' };
       }
       
-      if (data.token) {
+      if (data.token && data.user) {
         setToken(data.token);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({ username: data.username, role: data.role }));
-        setUser({ username: data.username, role: data.role });
-        return { success: true, data };
+        localStorage.setItem('user', JSON.stringify({ 
+          id: data.user.id,
+          username: data.user.username, 
+          role: data.user.role 
+        }));
+        setUser({ 
+          id: data.user.id,
+          username: data.user.username, 
+          role: data.user.role 
+        });
+        return { success: true, data: data.user };
       }
       
       return { success: false, error: data.error };

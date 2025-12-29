@@ -1,24 +1,34 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
-import { requireAdmin, requireAuth } from '@/lib/auth';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
+import { requireAdmin } from '@/lib/auth';
 
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
-    const [rows] = await pool.query('SELECT * FROM open_trips WHERE id=?', [id]);
+    const db = await getDb();
     
-    if (rows.length === 0) {
+    const trip = await db.collection('open_trips').findOne({
+      _id: new ObjectId(id)
+    });
+    
+    if (!trip) {
       return NextResponse.json(
         { error: 'Trip not found' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json(rows[0]);
-  } catch (err) {
-    console.error('Get open trip error:', err);
+    return NextResponse.json({
+      ...trip,
+      id: trip._id.toString(),
+      id_destinasi: trip.id_destinasi?.toString(),
+      _id: undefined
+    });
+  } catch (error) {
+    console.error('Open trips error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch trip' },
+      { error: 'Operation failed' },
       { status: 500 }
     );
   }
@@ -26,71 +36,43 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    const user = await requireAdmin();
+    await requireAdmin();
     const { id } = await params;
-    const {
-      nama_trip,
-      tanggal_berangkat,
-      durasi,
-      kuota,
-      harga_per_orang,
-      fasilitas,
-      itinerary,
-      dokumentasi,
-      status,
-      dilaksanakan,
-    } = await request.json();
+    const data = await request.json();
 
-    // Get old trip data
-    const [oldTripRows] = await pool.query(
-      'SELECT * FROM open_trips WHERE id=?',
-      [id]
-    );
-    const oldStatus = oldTripRows[0]?.status;
-    const oldDilaksanakan = oldTripRows[0]?.dilaksanakan || 0;
-    const newDilaksanakan = dilaksanakan !== undefined ? dilaksanakan : oldDilaksanakan;
-
-    const [result] = await pool.query(
-      'UPDATE open_trips SET nama_trip=?, tanggal_berangkat=?, durasi=?, kuota=?, harga_per_orang=?, fasilitas=?, itinerary=?, dokumentasi=?, status=?, dilaksanakan=? WHERE id=?',
-      [
-        nama_trip,
-        tanggal_berangkat,
-        durasi,
-        kuota,
-        harga_per_orang,
-        JSON.stringify(fasilitas),
-        itinerary,
-        JSON.stringify(dokumentasi),
-        status || oldStatus,
-        newDilaksanakan,
-        id,
-      ]
-    );
-
-    // If trip was just marked as completed
-    if (newDilaksanakan === 1 && oldDilaksanakan === 0) {
-      await pool.query(
-        'INSERT INTO history (username, role, action, trip_type, trip_id, request_body) VALUES (?, ?, ?, ?, ?, ?)',
-        [
-          user.username,
-          user.role,
-          'complete',
-          'open_trip',
-          id,
-          JSON.stringify({ nama_trip, tanggal_berangkat, durasi, kuota, harga_per_orang }),
-        ]
-      );
+    const db = await getDb();
+    
+    // Convert id_destinasi to ObjectId if present
+    if (data.id_destinasi) {
+      data.id_destinasi = new ObjectId(data.id_destinasi);
     }
     
-    return NextResponse.json({ affectedRows: result.affectedRows });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
+    const updateFields = { ...data };
+    delete updateFields.id;
+    delete updateFields._id;
+    updateFields.updatedAt = new Date();
+
+    const result = await db.collection('open_trips').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { error: 'Trip not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ affectedRows: result.modifiedCount });
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (err.message === 'Forbidden') {
+    if (error.message === 'Forbidden') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    console.error('Open trips error:', err);
+    console.error('Open trips error:', error);
     return NextResponse.json(
       { error: 'Operation failed' },
       { status: 500 }
@@ -103,20 +85,20 @@ export async function DELETE(request, { params }) {
     await requireAdmin();
     const { id } = await params;
     
-    const [result] = await pool.query(
-      'DELETE FROM open_trips WHERE id=?',
-      [id]
-    );
+    const db = await getDb();
+    const result = await db.collection('open_trips').deleteOne({
+      _id: new ObjectId(id)
+    });
     
-    return NextResponse.json({ affectedRows: result.affectedRows });
-  } catch (err) {
-    if (err.message === 'Unauthorized') {
+    return NextResponse.json({ affectedRows: result.deletedCount });
+  } catch (error) {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (err.message === 'Forbidden') {
+    if (error.message === 'Forbidden') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    console.error('Open trips error:', err);
+    console.error('Open trips error:', error);
     return NextResponse.json(
       { error: 'Operation failed' },
       { status: 500 }

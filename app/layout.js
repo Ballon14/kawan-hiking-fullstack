@@ -21,6 +21,10 @@ export default function RootLayout({ children }) {
       <head>
         <title>Kawan Hiking - Platform Hiking & Pendakian</title>
         <meta name="description" content="Platform terpercaya untuk petualangan hiking dan pendakian gunung di Indonesia" />
+        <script 
+          src="https://app.sandbox.midtrans.com/snap/snap.js" 
+          data-client-key="Mid-client-TlE16KKcRNzr_QzM"
+        ></script>
       </head>
       <body className={`${geist.variable} antialiased bg-slate-900 text-slate-100`}>
         <AuthProvider>

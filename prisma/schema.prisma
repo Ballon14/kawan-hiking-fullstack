@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model PrivateTrip {
+  id              Int       @id @default(autoincrement())
+  id_user         Int?
+  id_destinasi    Int?
+  
+  // New fields for request workflow
+  tanggal_mulai   DateTime? @db.Date
+  tanggal_selesai DateTime? @db.Date
+  jumlah_peserta  Int?
+  budget          Decimal?  @db.Decimal(10, 2)
+  catatan         String?   @db.Text
+  nama_kontak     String?   @db.VarChar(255)
+  nomor_hp        String?   @db.VarChar(20)
+  email           String?   @db.VarChar(255)
+  status          Status    @default(pending)
+  
+  // Existing fields
+  destinasi       String?   @db.VarChar(100)
+  min_peserta     Int?
+  harga_paket     Decimal?  @db.Decimal(10, 2)
+  paket_pilihan   Json?
+  custom_form     Json?
+  estimasi_biaya  Decimal?  @db.Decimal(10, 2)
+  dokumentasi     Json?
+  dilaksanakan    Int?      @default(0) @db.TinyInt
+  
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@map("private_trips")
+  @@index([status])
+  @@index([tanggal_mulai])
+}
+
+enum Status {
+  pending
+  approved
+  rejected
+  completed
+}
