@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiGet, apiPut } from '@/lib/api-client';
+import { showToast } from '@/lib/toast';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -48,10 +49,10 @@ export default function ProfilePage() {
       await apiPut('/api/auth/profile', formData);
       await fetchProfile();
       setEditing(false);
-      alert('Profile berhasil diupdate!');
+      showToast.success('Profile berhasil diupdate!');
     } catch (error) {
       console.error('Error:', error);
-      alert(error.message || 'Gagal update profile');
+      showToast.error(error.message || 'Gagal update profile');
     } finally {
       setSaving(false);
     }

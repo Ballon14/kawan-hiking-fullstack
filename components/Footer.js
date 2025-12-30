@@ -25,6 +25,7 @@ export default function Footer() {
               <li><Link href="/open-trip" className="text-slate-400 hover:text-emerald-400 text-sm">Open Trip</Link></li>
               <li><Link href="/private-trip" className="text-slate-400 hover:text-emerald-400 text-sm">Private Trip</Link></li>
               <li><Link href="/guide" className="text-slate-400 hover:text-emerald-400 text-sm">Guide</Link></li>
+              <li><Link href="/komunitas" className="text-slate-400 hover:text-emerald-400 text-sm">Komunitas</Link></li>
             </ul>
           </div>
 
@@ -34,13 +35,13 @@ export default function Footer() {
             <ul className="space-y-2 text-slate-400 text-sm">
               <li>📧 info@kawanhiking.id</li>
               <li>📞 +62 812-3456-7890</li>
-              <li>📍 Jakarta, Indonesia</li>
+              <li>📍 Purworejo, Jawa Tengah</li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400 text-sm">
-          © {new Date().getFullYear()} Kawan Hiking. All rights reserved.
+          © {new Date().getFullYear()} Kawan Hiking. Develop by Iqbaldev
         </div>
       </div>
     </footer>

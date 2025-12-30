@@ -23,6 +23,7 @@ export default function Navbar() {
     { href: '/open-trip', label: 'Open Trip' },
     { href: '/private-trip', label: 'Private Trip' },
     { href: '/guide', label: 'Guide' },
+    { href: '/komunitas', label: 'Komunitas' },
   ];
 
   const isActive = (href) => pathname === href;

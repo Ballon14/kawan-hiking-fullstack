@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiGet, apiPut } from '@/lib/api-client';
+import { showToast } from '@/lib/toast';
 
 export default function EditOpenTrip() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     nama_trip: '',
     tanggal_berangkat: '',
@@ -19,6 +22,7 @@ export default function EditOpenTrip() {
     fasilitas: '',
     itinerary: '',
     dokumentasi: '',
+    gambar: '',
     dilaksanakan: 0,
   });
 
@@ -36,15 +40,20 @@ export default function EditOpenTrip() {
         durasi: data.durasi || '',
         kuota: data.kuota || '',
         harga_per_orang: data.harga_per_orang || '',
-        fasilitas: Array.isArray(data.fasilitas) 
-          ? data.fasilitas.join(', ') 
+        fasilitas: Array.isArray(data.fasilitas)
+          ? data.fasilitas.join(', ')
           : (typeof data.fasilitas === 'string' ? JSON.parse(data.fasilitas || '[]').join(', ') : ''),
         itinerary: data.itinerary || '',
-        dokumentasi: Array.isArray(data.dokumentasi) 
-          ? data.dokumentasi.join(', ') 
+        dokumentasi: Array.isArray(data.dokumentasi)
+          ? data.dokumentasi.join(', ')
           : (typeof data.dokumentasi === 'string' ? JSON.parse(data.dokumentasi || '[]').join(', ') : ''),
+        gambar: data.gambar || '',
         dilaksanakan: data.dilaksanakan || 0,
       });
+      
+      if (data.gambar) {
+        setImagePreview(data.gambar);
+      }
     } catch (err) {
       setError(err.message || 'Gagal memuat data trip');
     } finally {
@@ -54,10 +63,40 @@ export default function EditOpenTrip() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? (checked ? 1 : 0) : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
     }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, gambar: data.url }));
+        setImagePreview(data.url);
+        showToast.success('Gambar berhasil diupload!');
+      } else {
+        showToast.error(data.error || 'Gagal upload gambar');
+      }
+    } catch (err) {
+      showToast.error(err.message || 'Gagal upload gambar');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -75,12 +114,15 @@ export default function EditOpenTrip() {
         fasilitas: formData.fasilitas ? formData.fasilitas.split(',').map(s => s.trim()) : [],
         itinerary: formData.itinerary || null,
         dokumentasi: formData.dokumentasi ? formData.dokumentasi.split(',').map(s => s.trim()) : [],
+        gambar: formData.gambar || null,
         dilaksanakan: formData.dilaksanakan,
       };
 
       await apiPut(`/api/open-trips/${params.id}`, payload);
+      showToast.success('Trip berhasil diupdate!');
       router.push('/admin/open-trips');
     } catch (err) {
+      showToast.error(err.message || 'Gagal mengupdate trip');
       setError(err.message || 'Gagal mengupdate trip');
     } finally {
       setSaving(false);
@@ -109,6 +151,38 @@ export default function EditOpenTrip() {
 
       <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Gambar Trip
+            </label>
+            <div className="flex gap-4 items-start">
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 disabled:opacity-50"
+                />
+                <p className="text-xs text-slate-400 mt-1">Max 5MB. Format: JPG, PNG, WEBP</p>
+              </div>
+              {uploading && (
+                <div className="text-emerald-400 text-sm">Uploading...</div>
+              )}
+            </div>
+            
+            {imagePreview && (
+              <div className="mt-4">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full max-w-md h-48 object-cover rounded-lg border-2 border-slate-700"
+                />
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -120,7 +194,7 @@ export default function EditOpenTrip() {
                 value={formData.nama_trip}
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="Open Trip Gunung Bromo"
+                placeholder="Bromo Sunrise Tour"
                 required
               />
             </div>
@@ -181,7 +255,7 @@ export default function EditOpenTrip() {
                 value={formData.harga_per_orang}
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="500000"
+                placeholder="1500000"
                 min="0"
                 required
               />
@@ -211,7 +285,7 @@ export default function EditOpenTrip() {
               value={formData.fasilitas}
               onChange={handleChange}
               className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="Transportasi, Tenda, Makan 3x, Guide"
+              placeholder="Jeep 4x4, Guide, Hotel 1 malam, Makan 2x, Dokumentasi"
             />
           </div>
 
@@ -225,7 +299,7 @@ export default function EditOpenTrip() {
               onChange={handleChange}
               rows={6}
               className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="Hari 1: ... &#10;Hari 2: ..."
+              placeholder="Hari 1: Surabaya - Bromo (malam)&#10;Hari 2: Sunrise hunting - Kawah - Pulang"
             />
           </div>
 

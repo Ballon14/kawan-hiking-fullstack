@@ -6,6 +6,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AdminChatBubble from "@/components/AdminChatBubble";
+import ToastProvider from "@/components/ToastProvider";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -37,8 +39,10 @@ export default function RootLayout({ children }) {
               <Navbar />
               <main className="flex-1">{children}</main>
               <Footer />
+              <AdminChatBubble />
             </div>
-          )}
+          )}\
+          <ToastProvider />
         </AuthProvider>
       </body>
     </html>

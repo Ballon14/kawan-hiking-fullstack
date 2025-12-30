@@ -6,6 +6,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { apiGet, apiPost } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
+import { showToast } from '@/lib/toast';
+import ReviewSection from '@/components/ReviewSection';
 
 export default function OpenTripDetailPage() {
   const params = useParams();
@@ -66,11 +68,11 @@ export default function OpenTripDetailPage() {
       await apiPost(`/api/open-trips/${trip.id}/register`, {
         jumlah_peserta: 1 // Default 1 participant, can be customized later
       });
-      alert('Berhasil mendaftar! Silakan lanjutkan ke pembayaran.');
+      showToast.success('Berhasil mendaftar! Silakan lanjutkan ke pembayaran.');
       router.push(`/payment/open-trip/${trip.id}`); // Redirect to payment
     } catch (error) {
       console.error('Error:', error);
-      alert(error.message || 'Gagal mendaftar. Silakan coba lagi.');
+      showToast.error(error.message || 'Gagal mendaftar. Silakan coba lagi.');
     } finally {
       setRegistering(false);
     }
@@ -336,6 +338,9 @@ export default function OpenTripDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Reviews Section */}
+          <ReviewSection tripId={trip.id} tripType="open_trip" />
         </div>
       </section>
     </div>

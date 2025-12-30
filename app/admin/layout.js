@@ -15,6 +15,7 @@ function AdminSidebar({ isOpen, onClose }) {
     { href: '/admin/open-trips', label: 'Open Trips', icon: '🎒' },
     { href: '/admin/private-trips', label: 'Private Trips', icon: '🚶' },
     { href: '/admin/guides', label: 'Guides', icon: '👨‍🏫' },
+    { href: '/admin/users', label: 'Users', icon: '👥' },
     { href: '/admin/chat', label: 'Chat', icon: '💬' },
   ];
 
@@ -30,7 +31,7 @@ function AdminSidebar({ isOpen, onClose }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-64 glass-card border-r border-slate-700 z-50 transform transition-transform duration-300 lg:transform-none ${
+        className={`sticky top-0 h-screen w-64 glass-card border-r border-slate-700 z-50 overflow-y-auto transform transition-transform duration-300 lg:transform-none ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >

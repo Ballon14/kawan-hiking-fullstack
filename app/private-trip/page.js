@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { apiGet, apiPost } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { showToast } from '@/lib/toast';
 
 export default function PrivateTripPage() {
   const { user } = useAuth();
@@ -86,7 +87,7 @@ export default function PrivateTripPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Error submitting:', error);
-      alert('Gagal mengirim permintaan. Silakan coba lagi.');
+      showToast.error('Gagal mengirim permintaan. Silakan coba lagi.');
     } finally {
       setSubmitting(false);
     }

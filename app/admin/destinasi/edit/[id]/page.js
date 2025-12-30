@@ -9,6 +9,7 @@ export default function EditDestinasi() {
   const params = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     nama_destinasi: '',
@@ -22,6 +23,36 @@ export default function EditDestinasi() {
     fasilitas: '',
     tips: '',
   });
+
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('type', 'destinations');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      setFormData(prev => ({ ...prev, gambar: data.url }));
+      alert('Gambar berhasil diupload!');
+    } catch (err) {
+      alert(err.message || 'Gagal upload gambar');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   useEffect(() => {
     fetchDestination();
@@ -185,18 +216,38 @@ export default function EditDestinasi() {
               />
             </div>
 
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                URL Gambar
+                Gambar Destinasi
               </label>
-              <input
-                type="text"
-                name="gambar"
-                value={formData.gambar}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="https://example.com/image.jpg"
-              />
+              <div className="space-y-3">
+                {formData.gambar && (
+                  <div className="relative w-full h-48 bg-slate-900 rounded-lg overflow-hidden">
+                    <img 
+                      src={formData.gambar} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className={`flex-1 px-4 py-3 bg-emerald-600 text-white text-center font-semibold rounded-lg hover:bg-emerald-700 transition-colors cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {uploading ? '⏳ Uploading...' : '📁 Upload Gambar'}
+                  </label>
+                </div>
+                <p className="text-sm text-slate-400">Max 2MB. Format: JPG, PNG, WEBP</p>
+              </div>
             </div>
           </div>
 

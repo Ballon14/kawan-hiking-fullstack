@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiGet } from '@/lib/api-client';
 import PaymentButton from '@/components/PaymentButton';
+import { showToast } from '@/lib/toast';
 import Link from 'next/link';
 
 export default function OpenTripPaymentPage() {
@@ -130,7 +131,7 @@ export default function OpenTripPaymentPage() {
               router.push(`/payment/finish?order_id=${result.order_id}`);
             }}
             onError={(result) => {
-              alert('Pembayaran gagal. Silakan coba lagi.');
+              showToast.error('Pembayaran gagal. Silakan coba lagi.');
             }}
           />
         </div>
