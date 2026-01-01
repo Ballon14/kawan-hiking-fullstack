@@ -34,8 +34,27 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Kontak</h3>
             <ul className="space-y-2 text-slate-400 text-sm">
               <li>📧 info@kawanhiking.id</li>
-              <li>📞 +62 812-3456-7890</li>
+              <li>
+                <a 
+                  href="https://wa.me/6285198607913" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
+                >
+                  📞 +62 851-9860-7913
+                </a>
+              </li>
               <li>📍 Purworejo, Jawa Tengah</li>
+              <li>
+                <a 
+                  href="https://www.instagram.com/kawan.hiking?igsh=ZmdhbzlpNzFjcHpv" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
+                >
+                  📱 @kawan.hiking
+                </a>
+              </li>
             </ul>
           </div>
         </div>
