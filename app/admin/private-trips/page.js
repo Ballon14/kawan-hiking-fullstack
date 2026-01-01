@@ -99,39 +99,39 @@ export default function ManagePrivateTrips() {
   const stats = getStatsCounts();
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-white mb-2">Private Trip Requests</h1>
-        <p className="text-slate-400">Manage custom trip requests dari users</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">Private Trip Requests</h1>
+        <p className="text-sm sm:text-base text-slate-400">Manage custom trip requests dari users</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="glass-card rounded-2xl p-6 border border-slate-700">
-          <div className="text-3xl mb-2">📊</div>
-          <div className="text-2xl font-bold text-white">{stats.total}</div>
-          <div className="text-sm text-slate-400">Total Requests</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-700">
+          <div className="text-2xl sm:text-3xl mb-2">📊</div>
+          <div className="text-xl sm:text-2xl font-bold text-white">{stats.total}</div>
+          <div className="text-xs sm:text-sm text-slate-400">Total Requests</div>
         </div>
-        <div className="glass-card rounded-2xl p-6 border border-yellow-600/30">
-          <div className="text-3xl mb-2">⏳</div>
-          <div className="text-2xl font-bold text-yellow-400">{stats.pending}</div>
-          <div className="text-sm text-slate-400">Pending</div>
+        <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-yellow-600/30">
+          <div className="text-2xl sm:text-3xl mb-2">⏳</div>
+          <div className="text-xl sm:text-2xl font-bold text-yellow-400">{stats.pending}</div>
+          <div className="text-xs sm:text-sm text-slate-400">Pending</div>
         </div>
-        <div className="glass-card rounded-2xl p-6 border border-green-600/30">
-          <div className="text-3xl mb-2">✅</div>
-          <div className="text-2xl font-bold text-green-400">{stats.approved}</div>
-          <div className="text-sm text-slate-400">Approved</div>
+        <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-600/30">
+          <div className="text-2xl sm:text-3xl mb-2">✅</div>
+          <div className="text-xl sm:text-2xl font-bold text-green-400">{stats.approved}</div>
+          <div className="text-xs sm:text-sm text-slate-400">Approved</div>
         </div>
-        <div className="glass-card rounded-2xl p-6 border border-red-600/30">
-          <div className="text-3xl mb-2">❌</div>
-          <div className="text-2xl font-bold text-red-400">{stats.rejected}</div>
-          <div className="text-sm text-slate-400">Rejected</div>
+        <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-red-600/30">
+          <div className="text-2xl sm:text-3xl mb-2">❌</div>
+          <div className="text-xl sm:text-2xl font-bold text-red-400">{stats.rejected}</div>
+          <div className="text-xs sm:text-sm text-slate-400">Rejected</div>
         </div>
-        <div className="glass-card rounded-2xl p-6 border border-blue-600/30">
-          <div className="text-3xl mb-2">🎉</div>
-          <div className="text-2xl font-bold text-blue-400">{stats.completed}</div>
-          <div className="text-sm text-slate-400">Completed</div>
+        <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-600/30">
+          <div className="text-2xl sm:text-3xl mb-2">🎉</div>
+          <div className="text-xl sm:text-2xl font-bold text-blue-400">{stats.completed}</div>
+          <div className="text-xs sm:text-sm text-slate-400">Completed</div>
         </div>
       </div>
 
@@ -167,13 +167,13 @@ export default function ManagePrivateTrips() {
           <table className="w-full">
             <thead className="bg-slate-700/50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">ID</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Kontak</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Tanggal</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Peserta</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Budget</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">Status</th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-slate-300">Aksi</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap hidden lg:table-cell">ID</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap">Kontak</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap hidden md:table-cell">Tanggal</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap hidden sm:table-cell">Peserta</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap hidden xl:table-cell">Budget</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap">Status</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
@@ -181,35 +181,36 @@ export default function ManagePrivateTrips() {
                 const config = statusConfig[trip.status] || statusConfig.pending;
                 return (
                   <tr key={trip.id} className="hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="text-slate-400 font-mono">#{trip.id}</span>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
+                      <span className="text-slate-400 font-mono text-xs sm:text-sm">#{trip.id}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-white font-medium">{trip.nama_kontak}</div>
-                      <div className="text-sm text-slate-400">{trip.email}</div>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <div className="text-white font-medium text-sm sm:text-base">{trip.nama_kontak}</div>
+                      <div className="text-xs sm:text-sm text-slate-400 truncate max-w-[150px] sm:max-w-none">{trip.email}</div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-white text-sm">{formatDate(trip.tanggal_mulai)}</div>
-                      <div className="text-xs text-slate-400">s/d {formatDate(trip.tanggal_selesai)}</div>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
+                      <div className="text-white text-xs sm:text-sm whitespace-nowrap">{formatDate(trip.tanggal_mulai)}</div>
+                      <div className="text-xs text-slate-400 whitespace-nowrap">s/d {formatDate(trip.tanggal_selesai)}</div>
                     </td>
-                    <td className="px-6 py-4 text-white">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-white text-sm hidden sm:table-cell">
                       {trip.jumlah_peserta} orang
                     </td>
-                    <td className="px-6 py-4 text-emerald-400">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-emerald-400 text-xs sm:text-sm hidden xl:table-cell">
                       {formatPrice(trip.budget)}
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${config.color}`}>
                         <span>{config.icon}</span>
-                        {config.label}
+                        <span className="hidden sm:inline">{config.label}</span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
                       <Link
                         href={`/admin/private-trips/view/${trip.id}`}
-                        className="text-emerald-400 hover:text-emerald-300 font-medium text-sm"
+                        className="text-emerald-400 hover:text-emerald-300 font-medium text-xs sm:text-sm whitespace-nowrap"
                       >
-                        Lihat Detail →
+                        <span className="hidden sm:inline">Lihat Detail →</span>
+                        <span className="sm:hidden">Detail</span>
                       </Link>
                     </td>
                   </tr>

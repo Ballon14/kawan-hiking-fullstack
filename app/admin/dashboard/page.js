@@ -65,15 +65,15 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-400">Overview dan statistik Kawan Hiking</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-sm sm:text-base text-slate-400">Overview dan statistik Kawan Hiking</p>
       </div>
       
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {statCards.map((card, index) => (
           <Link
             key={card.label}
@@ -81,17 +81,17 @@ export default function AdminDashboard() {
             className="group animate-scale-in"
             style={{ animationDelay: `${index * 0.1}s` }}
           >
-            <div className={`relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br ${card.gradient} hover-lift transition-all cursor-pointer`}>
+            <div className={`relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 bg-gradient-to-br ${card.gradient} hover-lift transition-all cursor-pointer`}>
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-5xl">{card.icon}</span>
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <span className="text-3xl sm:text-4xl md:text-5xl">{card.icon}</span>
                   <div className="text-right">
-                    <div className="text-4xl font-bold text-white">
+                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                       {card.value}
                     </div>
                   </div>
                 </div>
-                <h3 className="text-white/90 font-semibold text-lg">{card.label}</h3>
+                <h3 className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">{card.label}</h3>
               </div>
               
               {/* Shine Effect */}
@@ -102,50 +102,50 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="glass-card rounded-3xl p-8">
-        <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {quickActions.map((action) => (
             <Link
               key={action.label}
               href={action.href}
-              className={`flex flex-col items-center p-6 rounded-2xl bg-${action.color}-600/10 border border-${action.color}-600/30 hover:bg-${action.color}-600/20 transition-all hover-lift`}
+              className={`flex flex-col items-center p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-${action.color}-600/10 border border-${action.color}-600/30 hover:bg-${action.color}-600/20 transition-all hover-lift`}
             >
-              <span className="text-4xl mb-3">{action.icon}</span>
-              <span className={`text-${action.color}-400 font-semibold text-center`}>{action.label}</span>
+              <span className="text-3xl sm:text-4xl mb-2 sm:mb-3">{action.icon}</span>
+              <span className={`text-${action.color}-400 font-semibold text-center text-xs sm:text-sm`}>{action.label}</span>
             </Link>
           ))}
         </div>
       </div>
 
       {/* Welcome Card */}
-      <div className="glass-card rounded-3xl p-8 border border-emerald-500/20">
-        <div className="flex items-start gap-4">
-          <div className="text-5xl">👋</div>
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-3">Selamat Datang di Admin Panel</h2>
-            <p className="text-slate-300 mb-4 leading-relaxed">
+      <div className="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-emerald-500/20">
+        <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+          <div className="text-4xl sm:text-5xl">👋</div>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">Selamat Datang di Admin Panel</h2>
+            <p className="text-sm sm:text-base text-slate-300 mb-3 sm:mb-4 leading-relaxed">
               Kelola semua aspek Kawan Hiking dari sini. Gunakan menu di sebelah kiri untuk navigasi,
               atau gunakan quick actions di atas untuk akses cepat ke fitur yang sering digunakan.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <div className="flex items-center gap-2 text-emerald-400">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-sm">Responsive Design</span>
+                <span className="text-xs sm:text-sm">Responsive Design</span>
               </div>
               <div className="flex items-center gap-2 text-emerald-400">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-sm">Real-time Updates</span>
+                <span className="text-xs sm:text-sm">Real-time Updates</span>
               </div>
               <div className="flex items-center gap-2 text-emerald-400">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-sm">Easy Management</span>
+                <span className="text-xs sm:text-sm">Easy Management</span>
               </div>
             </div>
           </div>

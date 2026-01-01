@@ -31,7 +31,7 @@ function AdminSidebar({ isOpen, onClose }) {
 
       {/* Sidebar */}
       <aside
-        className={`sticky top-0 h-screen w-64 glass-card border-r border-slate-700 z-50 overflow-y-auto transform transition-transform duration-300 lg:transform-none ${
+        className={`fixed lg:sticky top-0 h-screen w-64 glass-card border-r border-slate-700 z-50 overflow-y-auto transform transition-transform duration-300 lg:transform-none ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -98,12 +98,13 @@ function AdminHeader({ onMenuClick }) {
 
   return (
     <header className="glass-card border-b border-slate-700 sticky top-0 z-30">
-      <div className="px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between">
+      <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Mobile Menu Button */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden text-white hover:text-emerald-400 transition-colors"
+            className="lg:hidden text-white hover:text-emerald-400 transition-colors p-1"
+            aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -111,20 +112,21 @@ function AdminHeader({ onMenuClick }) {
           </button>
 
           <div className="hidden lg:block">
-            <h1 className="text-lg font-semibold text-white">
+            <h1 className="text-base lg:text-lg font-semibold text-white">
               Selamat datang, <span className="text-emerald-400">{user?.nama || 'Admin'}</span>
             </h1>
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-white">{user?.nama}</p>
-              <p className="text-xs text-slate-400">{user?.email}</p>
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 ml-auto">
+            <div className="hidden md:block text-right">
+              <p className="text-sm font-medium text-white truncate max-w-[150px] lg:max-w-none">{user?.nama}</p>
+              <p className="text-xs text-slate-400 truncate max-w-[150px] lg:max-w-none">{user?.email}</p>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-600/20 text-red-400 rounded-xl hover:bg-red-600/30 transition-colors font-medium flex items-center gap-2"
+              className="px-3 sm:px-4 py-2 bg-red-600/20 text-red-400 rounded-xl hover:bg-red-600/30 transition-colors font-medium flex items-center gap-2"
+              aria-label="Logout"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -148,7 +150,7 @@ export default function AdminLayout({ children }) {
         
         <div className="flex-1 flex flex-col min-w-0">
           <AdminHeader onMenuClick={() => setSidebarOpen(true)} />
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-auto">
             {children}
           </main>
         </div>

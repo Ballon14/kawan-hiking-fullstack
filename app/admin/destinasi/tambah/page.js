@@ -78,11 +78,11 @@ export default function TambahDestinasi() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Tambah Destinasi</h1>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">Tambah Destinasi</h1>
       </div>
 
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8">
+      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-4 sm:p-6 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
           <div>
@@ -94,7 +94,7 @@ export default function TambahDestinasi() {
               accept="image/*"
               onChange={handleImageUpload}
               disabled={uploading}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 disabled:opacity-50"
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 disabled:opacity-50"
             />
             <p className="text-xs text-slate-400 mt-1">Max 5MB. Format: JPG, PNG, WEBP</p>
             
@@ -103,7 +103,7 @@ export default function TambahDestinasi() {
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="w-full max-w-md h-48 object-cover rounded-lg border-2 border-slate-700"
+                  className="w-full sm:max-w-md h-40 sm:h-48 object-cover rounded-lg border-2 border-slate-700"
                 />
               </div>
             )}
@@ -202,17 +202,17 @@ export default function TambahDestinasi() {
             />
           </div>
 
-          <div className="flex gap-4 pt-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6">
             <button
               type="submit"
-              className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
+              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
             >
               Tambah Destinasi
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors"
+              className="w-full sm:w-auto px-6 py-3 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors"
             >
               Batal
             </button>

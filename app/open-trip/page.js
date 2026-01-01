@@ -71,7 +71,7 @@ export default function OpenTripPage() {
   const filteredAndSortedTrips = trips
     .filter(trip => {
       const matchesSearch = trip.nama_trip?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDestination = !selectedDestination || trip.id_destinasi === parseInt(selectedDestination);
+      const matchesDestination = !selectedDestination || String(trip.id_destinasi) === String(selectedDestination);
       const matchesMinPrice = !minPrice || trip.harga_per_orang >= parseInt(minPrice);
       const matchesMaxPrice = !maxPrice || trip.harga_per_orang <= parseInt(maxPrice);
       
@@ -127,23 +127,23 @@ export default function OpenTripPage() {
       </section>
 
       {/* Filters Section */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-20 border-b border-slate-800">
+      <section className="py-4 sm:py-6 md:py-8 px-4 sm:px-6 lg:px-8 bg-slate-900/50 backdrop-blur-sm border-b border-slate-800">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             {/* Search */}
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="🔍 Cari trip..."
-              className="px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
 
             {/* Destination Filter */}
             <select
               value={selectedDestination}
               onChange={(e) => setSelectedDestination(e.target.value)}
-              className="px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             >
               <option value="">📍 Semua Destinasi</option>
               {destinations.map(dest => (
@@ -157,7 +157,7 @@ export default function OpenTripPage() {
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               placeholder="💰 Harga Min"
-              className="px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
 
             {/* Max Price */}
@@ -166,14 +166,14 @@ export default function OpenTripPage() {
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="💰 Harga Max"
-              className="px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
 
             {/* Sort */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             >
               <option value="date">📅 Terdekat</option>
               <option value="price">💵 Termurah</option>
@@ -227,7 +227,7 @@ export default function OpenTripPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredAndSortedTrips.map((trip, index) => {
               const tripStatus = getTripStatus(trip);
               const destination = destinations.find(d => d.id === trip.id_destinasi);

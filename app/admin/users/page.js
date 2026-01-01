@@ -100,38 +100,38 @@ export default function UsersPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Manajemen User</h1>
-        <p className="text-slate-400">Kelola semua user yang terdaftar</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Manajemen User</h1>
+        <p className="text-sm sm:text-base text-slate-400">Kelola semua user yang terdaftar</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Total Users</p>
-              <p className="text-3xl font-bold text-white mt-1">{stats.total}</p>
+              <p className="text-xs sm:text-sm text-slate-400">Total Users</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{stats.total}</p>
             </div>
-            <div className="text-4xl">👥</div>
+            <div className="text-3xl sm:text-4xl">👥</div>
           </div>
         </div>
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Admin</p>
-              <p className="text-3xl font-bold text-purple-400 mt-1">{stats.admins}</p>
+              <p className="text-xs sm:text-sm text-slate-400">Admin</p>
+              <p className="text-2xl sm:text-3xl font-bold text-purple-400 mt-1">{stats.admins}</p>
             </div>
-            <div className="text-4xl">👑</div>
+            <div className="text-3xl sm:text-4xl">👑</div>
           </div>
         </div>
-        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Regular Users</p>
-              <p className="text-3xl font-bold text-blue-400 mt-1">{stats.users}</p>
+              <p className="text-xs sm:text-sm text-slate-400">Regular Users</p>
+              <p className="text-2xl sm:text-3xl font-bold text-blue-400 mt-1">{stats.users}</p>
             </div>
-            <div className="text-4xl">👤</div>
+            <div className="text-3xl sm:text-4xl">👤</div>
           </div>
         </div>
       </div>
@@ -169,53 +169,53 @@ export default function UsersPage() {
           <table className="w-full">
             <thead className="bg-slate-700/50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">User</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Role</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Terdaftar</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">Aksi</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">User</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap hidden md:table-cell">Email</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">Role</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap hidden lg:table-cell">Terdaftar</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="px-6 py-12 text-center text-slate-400">
-                    <div className="text-5xl mb-2">👤</div>
-                    <p>Tidak ada user ditemukan</p>
+                    <div className="text-4xl sm:text-5xl mb-2">👤</div>
+                    <p className="text-sm sm:text-base">Tidak ada user ditemukan</p>
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-full flex items-center justify-center text-white font-bold">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
                           {user.username?.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-medium text-white">{user.nama || user.username}</p>
-                          <p className="text-sm text-slate-400">@{user.username}</p>
+                        <div className="min-w-0">
+                          <p className="font-medium text-white text-sm sm:text-base truncate">{user.nama || user.username}</p>
+                          <p className="text-xs sm:text-sm text-slate-400 truncate">@{user.username}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-300">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getRoleBadge(user.role)}`}>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-slate-300 text-sm hidden md:table-cell">{user.email}</td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${getRoleBadge(user.role)}`}>
                         {user.role === 'admin' ? '👑 Admin' : '👤 User'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-slate-400 text-sm">{formatDate(user.createdAt)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-slate-400 text-xs sm:text-sm hidden lg:table-cell">{formatDate(user.createdAt)}</td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2">
                         <Link
                           href={`/admin/users/edit/${user.id}`}
-                          className="px-3 py-1 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors text-sm font-medium"
+                          className="px-3 py-1 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
                         >
                           Edit
                         </Link>
                         <button
                           onClick={() => handleDelete(user.id, user.username)}
-                          className="px-3 py-1 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors text-sm font-medium"
+                          className="px-3 py-1 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
                         >
                           Hapus
                         </button>
