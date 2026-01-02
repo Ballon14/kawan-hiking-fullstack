@@ -61,12 +61,16 @@ export default function EditGuide() {
     try {
       const payload = {
         nama: formData.nama,
-        bio: formData.bio || null,
+        bio: formData.bio?.trim() || null,
         pengalaman: formData.pengalaman || null,
-        sertifikasi: formData.sertifikasi ? formData.sertifikasi.split(',').map(s => s.trim()) : [],
+        sertifikasi: formData.sertifikasi 
+          ? formData.sertifikasi.split(',').map(s => s.trim()).filter(s => s) 
+          : [],
         foto: formData.foto || null,
-        spesialisasi: formData.spesialisasi ? formData.spesialisasi.split(',').map(s => s.trim()) : [],
-        instagram: formData.instagram || null,
+        spesialisasi: formData.spesialisasi 
+          ? formData.spesialisasi.split(',').map(s => s.trim()).filter(s => s) 
+          : [],
+        instagram: formData.instagram?.trim() || null,
       };
 
       await apiPut(`/api/guides/${params.id}`, payload);

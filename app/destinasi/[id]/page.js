@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { apiGet } from '@/lib/api-client';
+import { getImagePath } from '@/lib/image-utils';
 
 export default function DetailDestinasiPage({ params }) {
   const { id } = use(params);
@@ -60,7 +61,7 @@ export default function DetailDestinasiPage({ params }) {
           <div className="aspect-video bg-slate-700 relative">
             {destination.gambar ? (
               <img
-                src={destination.gambar}
+                src={getImagePath(destination.gambar, 'destinations')}
                 alt={destination.nama_destinasi}
                 className="w-full h-full object-cover"
               />

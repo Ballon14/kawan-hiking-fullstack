@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { apiGet } from '@/lib/api-client';
+import { getImagePath } from '@/lib/image-utils';
 
 export default function OpenTripPage() {
   const [trips, setTrips] = useState([]);
@@ -242,7 +243,7 @@ export default function OpenTripPage() {
                   <div className="relative h-48 image-overlay">
                     {destination?.gambar ? (
                       <Image
-                        src={destination.gambar}
+                        src={getImagePath(destination.gambar, 'destinations')}
                         alt={trip.nama_trip}
                         fill
                         className="object-cover"

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiGet } from '@/lib/api-client';
+import { getImagePath } from '@/lib/image-utils';
 import Link from 'next/link';
 
 export default function DestinationsPage() {
@@ -125,7 +126,7 @@ export default function DestinationsPage() {
                 <div className="h-48 bg-gradient-to-br from-emerald-900 to-slate-900 overflow-hidden">
                   {dest.gambar ? (
                     <img
-                      src={dest.gambar}
+                      src={getImagePath(dest.gambar, 'destinations')}
                       alt={dest.nama_destinasi}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />

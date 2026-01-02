@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiGet, apiDelete } from '@/lib/api-client';
+import { getImagePath } from '@/lib/image-utils';
 
 export default function ManageGuides() {
   const [guides, setGuides] = useState([]);
@@ -71,7 +72,7 @@ export default function ManageGuides() {
                     <div className="flex items-center">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-700 rounded-full flex items-center justify-center mr-2 sm:mr-3">
                         {guide.foto ? (
-                          <img src={guide.foto} alt={guide.nama} className="w-full h-full rounded-full object-cover" />
+                          <img src={getImagePath(guide.foto, 'general')} alt={guide.nama} className="w-full h-full rounded-full object-cover" />
                         ) : (
                           <span className="text-lg sm:text-xl">👨‍🏫</span>
                         )}

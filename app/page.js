@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { apiGet } from '@/lib/api-client';
+import { getImagePath } from '@/lib/image-utils';
 
 export default function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -109,7 +110,7 @@ export default function Home() {
                   <div className="relative h-96">
                     {dest.gambar ? (
                       <Image
-                        src={dest.gambar}
+                        src={getImagePath(dest.gambar, 'destinations')}
                         alt={dest.nama_destinasi}
                         fill
                         className="object-cover"

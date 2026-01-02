@@ -62,10 +62,14 @@ export default function TambahGuide() {
         nama: formData.nama,
         pengalaman: parseInt(formData.pengalaman),
         foto: formData.url_foto || null,
-        bio: formData.bio || null,
-        sertifikasi: formData.sertifikasi || null,
-        spesialisasi: formData.spesialisasi || null,
-        instagram: formData.instagram || null,
+        bio: formData.bio?.trim() || null,
+        sertifikasi: formData.sertifikasi 
+          ? formData.sertifikasi.split(',').map(s => s.trim()).filter(s => s) 
+          : [],
+        spesialisasi: formData.spesialisasi 
+          ? formData.spesialisasi.split(',').map(s => s.trim()).filter(s => s) 
+          : [],
+        instagram: formData.instagram?.trim() || null,
       };
 
       await apiPost('/api/guides', payload);

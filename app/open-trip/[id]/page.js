@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { apiGet, apiPost } from '@/lib/api-client';
+import { getImagePath } from '@/lib/image-utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/lib/toast';
 import ReviewSection from '@/components/ReviewSection';
@@ -130,7 +131,7 @@ export default function OpenTripDetailPage() {
         <div className="absolute inset-0">
           {destination?.gambar ? (
             <Image
-              src={destination.gambar}
+              src={getImagePath(destination.gambar, 'destinations')}
               alt={trip.nama_trip}
               fill
               className="object-cover"
