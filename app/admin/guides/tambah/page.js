@@ -61,7 +61,7 @@ export default function TambahGuide() {
       const payload = {
         nama: formData.nama,
         pengalaman: parseInt(formData.pengalaman),
-        url_foto: formData.url_foto || null,
+        foto: formData.url_foto || null,
         bio: formData.bio || null,
         sertifikasi: formData.sertifikasi || null,
         spesialisasi: formData.spesialisasi || null,
