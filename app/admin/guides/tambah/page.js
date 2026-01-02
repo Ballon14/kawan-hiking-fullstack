@@ -16,6 +16,7 @@ export default function TambahGuide() {
     bio: '',
     sertifikasi: '',
     spesialisasi: '',
+    instagram: '',
   });
 
   const handleChange = (e) => {
@@ -64,6 +65,7 @@ export default function TambahGuide() {
         bio: formData.bio || null,
         sertifikasi: formData.sertifikasi || null,
         spesialisasi: formData.spesialisasi || null,
+        instagram: formData.instagram || null,
       };
 
       await apiPost('/api/guides', payload);
@@ -180,6 +182,21 @@ export default function TambahGuide() {
               className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="Gunung Tinggi, Tracking, Rock Climbing"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Instagram
+            </label>
+            <input
+              type="text"
+              name="instagram"
+              value={formData.instagram}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="@username atau https://instagram.com/username"
+            />
+            <p className="text-xs text-slate-400 mt-1">Username Instagram guide untuk kontak</p>
           </div>
 
           <div className="flex gap-4 pt-6">

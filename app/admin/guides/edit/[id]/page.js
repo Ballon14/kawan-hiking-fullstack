@@ -17,6 +17,7 @@ export default function EditGuide() {
     sertifikasi: '',
     foto: '',
     spesialisasi: '',
+    instagram: '',
   });
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function EditGuide() {
         spesialisasi: Array.isArray(data.spesialisasi) 
           ? data.spesialisasi.join(', ') 
           : (typeof data.spesialisasi === 'string' ? JSON.parse(data.spesialisasi || '[]').join(', ') : ''),
+        instagram: data.instagram || '',
       });
     } catch (err) {
       setError(err.message || 'Gagal memuat data guide');
@@ -64,6 +66,7 @@ export default function EditGuide() {
         sertifikasi: formData.sertifikasi ? formData.sertifikasi.split(',').map(s => s.trim()) : [],
         foto: formData.foto || null,
         spesialisasi: formData.spesialisasi ? formData.spesialisasi.split(',').map(s => s.trim()) : [],
+        instagram: formData.instagram || null,
       };
 
       await apiPut(`/api/guides/${params.id}`, payload);
@@ -182,6 +185,21 @@ export default function EditGuide() {
               className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="Gunung Tinggi, Tracking, Rock Climbing"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Instagram
+            </label>
+            <input
+              type="text"
+              name="instagram"
+              value={formData.instagram}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="@username atau https://instagram.com/username"
+            />
+            <p className="text-xs text-slate-400 mt-1">Username Instagram guide untuk kontak</p>
           </div>
 
           <div className="flex gap-4 pt-6">
