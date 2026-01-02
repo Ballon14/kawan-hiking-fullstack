@@ -61,7 +61,7 @@ export default function GuidePage() {
                 <div className="aspect-square bg-slate-700 relative">
                   {guide.foto ? (
                     <img
-                      src={guide.foto}
+                      src={guide.foto.startsWith('/') || guide.foto.startsWith('http') ? guide.foto : `/uploads/general/${guide.foto}`}
                       alt={guide.nama}
                       className="w-full h-full object-cover"
                     />
