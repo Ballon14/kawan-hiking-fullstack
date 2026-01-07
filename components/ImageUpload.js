@@ -18,10 +18,10 @@ export default function ImageUpload({ value, onChange, label = 'Upload Gambar', 
       return false;
     }
 
-    // Check file size (max 2MB)
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      setError('Ukuran file maksimal 2MB');
+      setError('Ukuran file maksimal 5MB');
       return false;
     }
 
@@ -153,7 +153,7 @@ export default function ImageUpload({ value, onChange, label = 'Upload Gambar', 
                 Klik atau drag & drop gambar di sini
               </p>
               <p className="text-sm text-slate-400">
-                JPG, PNG, atau WEBP (Maks. 2MB)
+                JPG, PNG, atau WEBP (Maks. 5MB)
               </p>
             </>
           )}

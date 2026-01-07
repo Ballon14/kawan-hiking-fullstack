@@ -24,35 +24,37 @@ export default function EditDestinasi() {
     tips: '',
   });
 
-  async function handleImageUpload(e) {
-    const file = e.target.files?.[0];
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', file);
-      uploadFormData.append('type', 'destinations');
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'destinations'); // Specify folder
 
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: uploadFormData,
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData,
       });
 
       const data = await response.json();
       
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, gambar: data.url }));
+        alert('Gambar berhasil diupload!');
+      } else {
+        alert(data.error || 'Gagal upload gambar');
       }
-
-      setFormData(prev => ({ ...prev, gambar: data.url }));
-      alert('Gambar berhasil diupload!');
     } catch (err) {
       alert(err.message || 'Gagal upload gambar');
     } finally {
       setUploading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchDestination();
@@ -246,7 +248,7 @@ export default function EditDestinasi() {
                     {uploading ? '⏳ Uploading...' : '📁 Upload Gambar'}
                   </label>
                 </div>
-                <p className="text-sm text-slate-400">Max 2MB. Format: JPG, PNG, WEBP</p>
+                <p className="text-sm text-slate-400">Max 5MB. Format: JPG, PNG, WEBP</p>
               </div>
             </div>
           </div>

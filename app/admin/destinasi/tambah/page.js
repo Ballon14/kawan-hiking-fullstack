@@ -32,9 +32,12 @@ export default function TambahDestinasi() {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('type', 'destinations'); // Specify folder
 
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/upload', {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
       });
 

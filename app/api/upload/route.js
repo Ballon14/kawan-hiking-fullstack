@@ -1,16 +1,29 @@
 import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { requireAdmin } from '@/lib/auth';
 
 export async function POST(request) {
   try {
+    // Require admin authentication
+    await requireAdmin();
+
     const formData = await request.formData();
     const file = formData.get('file');
-    const type = formData.get('type') || 'general'; // destinations, trips, etc
+    const type = formData.get('type') || 'general'; // destinations, trips, general
 
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
+        { status: 400 }
+      );
+    }
+
+    // Validate folder type
+    const validFolders = ['general', 'destinations', 'trips', 'guides'];
+    if (!validFolders.includes(type)) {
+      return NextResponse.json(
+        { error: `Invalid upload type. Must be one of: ${validFolders.join(', ')}` },
         { status: 400 }
       );
     }
@@ -24,21 +37,22 @@ export async function POST(request) {
       );
     }
 
-    // Validate file size (max 2MB)
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File size exceeds 2MB limit' },
+        { error: 'File size exceeds 5MB limit' },
         { status: 400 }
       );
     }
 
-    // Get file extension
-    const extension = file.name.split('.').pop();
+    // Get and sanitize file extension
+    const extension = file.name.split('.').pop().toLowerCase();
     
     // Generate unique filename
     const timestamp = Date.now();
-    const filename = `${type}-${timestamp}.${extension}`;
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const filename = `${type}-${timestamp}-${randomStr}.${extension}`;
 
     // Ensure upload directory exists
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', type);
@@ -51,17 +65,29 @@ export async function POST(request) {
     
     await writeFile(filepath, buffer);
 
-    // Return public URL
+    // Return public URL with metadata
     const url = `/uploads/${type}/${filename}`;
 
     return NextResponse.json({ 
       success: true, 
       url,
-      filename 
+      filename,
+      size: file.size,
+      type: file.type,
+      folder: type
     });
 
   } catch (error) {
     console.error('Upload error:', error);
+    
+    // Handle auth errors
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+    
     return NextResponse.json(
       { error: 'Failed to upload file' },
       { status: 500 }
