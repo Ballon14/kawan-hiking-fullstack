@@ -241,25 +241,23 @@ export default function OpenTripPage() {
                 >
                   {/* Trip Image */}
                   <div className="relative h-48 image-overlay">
-                    {trip.gambar ? (
-                      <Image
-                        src={getImagePath(trip.gambar, 'trips')}
+                    {(trip.gambar || destination?.gambar) ? (
+                      <img
+                        src={trip.gambar ? getImagePath(trip.gambar, 'trips') : getImagePath(destination.gambar, 'destinations')}
                         alt={trip.nama_trip}
-                        fill
-                        className="object-cover"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
                       />
-                    ) : destination?.gambar ? (
-                      <Image
-                        src={getImagePath(destination.gambar, 'destinations')}
-                        alt={trip.nama_trip}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center">
-                        <span className="text-6xl">🏔️</span>
-                      </div>
-                    )}
+                    ) : null}
+                    <div 
+                      className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center absolute inset-0"
+                      style={{ display: (trip.gambar || destination?.gambar) ? 'none' : 'flex' }}
+                    >
+                      <span className="text-6xl">🏔️</span>
+                    </div>
                     
                     {/* Status Badge */}
                     <div className="absolute top-4 right-4 z-10">

@@ -129,25 +129,21 @@ export default function OpenTripDetailPage() {
       {/* Hero Image */}
       <section className="relative h-96 overflow-hidden">
         <div className="absolute inset-0">
-          {trip.gambar ? (
-            <Image
-              src={getImagePath(trip.gambar, 'trips')}
+          {(trip.gambar || destination?.gambar) ? (
+            <img
+              src={trip.gambar ? getImagePath(trip.gambar, 'trips') : getImagePath(destination.gambar, 'destinations')}
               alt={trip.nama_trip}
-              fill
-              className="object-cover"
-              priority
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
             />
-          ) : destination?.gambar ? (
-            <Image
-              src={getImagePath(destination.gambar, 'destinations')}
-              alt={trip.nama_trip}
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800" />
-          )}
+          ) : null}
+          <div 
+            className="w-full h-full bg-gradient-to-br from-emerald-600 to-emerald-800"
+            style={{ display: (trip.gambar || destination?.gambar) ? 'none' : 'block' }}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
         </div>
 
