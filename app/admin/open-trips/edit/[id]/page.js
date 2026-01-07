@@ -159,29 +159,63 @@ export default function EditOpenTrip() {
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Gambar Trip
             </label>
-            <div className="flex gap-4 items-start">
-              <div className="flex-1">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 disabled:opacity-50"
-                />
-                <p className="text-xs text-slate-400 mt-1">Max 5MB. Format: JPG, PNG, WEBP</p>
-              </div>
-              {uploading && (
-                <div className="text-emerald-400 text-sm">Uploading...</div>
-              )}
-            </div>
             
-            {imagePreview && (
-              <div className="mt-4">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full max-w-md h-48 object-cover rounded-lg border-2 border-slate-700"
-                />
+            {imagePreview ? (
+              <div className="space-y-3">
+                <div className="relative w-full max-w-md h-48 rounded-lg overflow-hidden border-2 border-slate-700">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <label className={`px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-semibold cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {uploading ? '⏳ Uploading...' : '📁 Ganti Gambar'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, gambar: '' }));
+                      setImagePreview(null);
+                    }}
+                    className="px-4 py-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors text-sm"
+                  >
+                    Hapus
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400">Max 5MB. Format: JPG, PNG, WEBP</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <label className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-emerald-500 transition-colors ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  {uploading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
+                      <span className="text-slate-400">Uploading...</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-4xl">📸</span>
+                      <span className="text-white font-medium">Klik untuk upload gambar</span>
+                      <span className="text-xs text-slate-400">Max 5MB. Format: JPG, PNG, WEBP</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
               </div>
             )}
           </div>
