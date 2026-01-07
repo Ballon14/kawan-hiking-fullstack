@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiGet, apiPut } from '@/lib/api-client';
+import { showToast } from '@/lib/toast';
 
 export default function EditGuide() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     nama: '',
     bio: '',
@@ -41,6 +44,10 @@ export default function EditGuide() {
           : (typeof data.spesialisasi === 'string' ? JSON.parse(data.spesialisasi || '[]').join(', ') : ''),
         instagram: data.instagram || '',
       });
+
+      if (data.foto) {
+        setImagePreview(data.foto);
+      }
     } catch (err) {
       setError(err.message || 'Gagal memuat data guide');
     } finally {
@@ -51,6 +58,39 @@ export default function EditGuide() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('type', 'guides');
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: uploadFormData,
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, foto: data.url }));
+        setImagePreview(data.url);
+        showToast.success('Foto berhasil diupload!');
+      } else {
+        showToast.error(data.error || 'Gagal upload foto');
+      }
+    } catch (err) {
+      showToast.error(err.message || 'Gagal upload foto');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -74,6 +114,7 @@ export default function EditGuide() {
       };
 
       await apiPut(`/api/guides/${params.id}`, payload);
+      showToast.success('Guide berhasil diupdate!');
       router.push('/admin/guides');
     } catch (err) {
       setError(err.message || 'Gagal mengupdate guide');
@@ -104,6 +145,38 @@ export default function EditGuide() {
 
       <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Foto Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Foto Guide
+            </label>
+            <div className="flex gap-4 items-start">
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 disabled:opacity-50"
+                />
+                <p className="text-xs text-slate-400 mt-1">Max 5MB. Format: JPG, PNG, WEBP</p>
+              </div>
+              {uploading && (
+                <div className="text-emerald-400 text-sm">Uploading...</div>
+              )}
+            </div>
+            
+            {imagePreview && (
+              <div className="mt-4">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover rounded-full border-2 border-slate-700"
+                />
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -122,29 +195,16 @@ export default function EditGuide() {
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Pengalaman
+                Pengalaman (tahun)
               </label>
               <input
-                type="text"
+                type="number"
                 name="pengalaman"
                 value={formData.pengalaman}
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="10 tahun"
-              />
-            </div>
-
-            <div className="col-span-1 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                URL Foto
-              </label>
-              <input
-                type="text"
-                name="foto"
-                value={formData.foto}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="https://example.com/photo.jpg"
+                placeholder="10"
+                min="0"
               />
             </div>
           </div>
