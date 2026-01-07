@@ -47,8 +47,10 @@ export default function ImageUpload({ value, onChange, label = 'Upload Gambar', 
       formData.append('file', file);
       formData.append('type', type);
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch('/api/upload', {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
       });
 

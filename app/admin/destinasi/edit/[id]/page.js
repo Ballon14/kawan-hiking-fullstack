@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiGet, apiPut } from '@/lib/api-client';
+import { showToast } from '@/lib/toast';
 
 export default function EditDestinasi() {
   const router = useRouter();
@@ -45,12 +46,12 @@ export default function EditDestinasi() {
       
       if (response.ok) {
         setFormData(prev => ({ ...prev, gambar: data.url }));
-        alert('Gambar berhasil diupload!');
+        showToast.success('Gambar berhasil diupload!');
       } else {
-        alert(data.error || 'Gagal upload gambar');
+        showToast.error(data.error || 'Gagal upload gambar');
       }
     } catch (err) {
-      alert(err.message || 'Gagal upload gambar');
+      showToast.error(err.message || 'Gagal upload gambar');
     } finally {
       setUploading(false);
     }
