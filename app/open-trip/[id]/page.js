@@ -129,7 +129,15 @@ export default function OpenTripDetailPage() {
       {/* Hero Image */}
       <section className="relative h-96 overflow-hidden">
         <div className="absolute inset-0">
-          {destination?.gambar ? (
+          {trip.gambar ? (
+            <Image
+              src={getImagePath(trip.gambar, 'trips')}
+              alt={trip.nama_trip}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : destination?.gambar ? (
             <Image
               src={getImagePath(destination.gambar, 'destinations')}
               alt={trip.nama_trip}

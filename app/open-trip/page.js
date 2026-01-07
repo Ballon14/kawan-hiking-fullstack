@@ -241,7 +241,14 @@ export default function OpenTripPage() {
                 >
                   {/* Trip Image */}
                   <div className="relative h-48 image-overlay">
-                    {destination?.gambar ? (
+                    {trip.gambar ? (
+                      <Image
+                        src={getImagePath(trip.gambar, 'trips')}
+                        alt={trip.nama_trip}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : destination?.gambar ? (
                       <Image
                         src={getImagePath(destination.gambar, 'destinations')}
                         alt={trip.nama_trip}
