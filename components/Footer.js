@@ -58,10 +58,6 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-
-        <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400 text-sm">
-          © {new Date().getFullYear()} Kawan Hiking. Develop by Iqbaldev
-        </div>
       </div>
     </footer>
   );

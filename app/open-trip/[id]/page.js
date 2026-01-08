@@ -67,10 +67,10 @@ export default function OpenTripDetailPage() {
     setRegistering(true);
     try {
       await apiPost(`/api/open-trips/${trip.id}/register`, {
-        jumlah_peserta: 1 // Default 1 participant, can be customized later
+        jumlah_peserta: 1
       });
       showToast.success('Berhasil mendaftar! Silakan lanjutkan ke pembayaran.');
-      router.push(`/payment/open-trip/${trip.id}`); // Redirect to payment
+      router.push(`/payment/open-trip/${trip.id}`);
     } catch (error) {
       console.error('Error:', error);
       showToast.error(error.message || 'Gagal mendaftar. Silakan coba lagi.');
@@ -125,9 +125,9 @@ export default function OpenTripDetailPage() {
   const status = getTripStatus();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-slate-900">
       {/* Hero Image */}
-      <section className="relative h-96 overflow-hidden">
+      <section className="relative h-80 sm:h-96 overflow-hidden">
         <div className="absolute inset-0">
           {(trip.gambar || destination?.gambar) ? (
             <img
@@ -150,13 +150,14 @@ export default function OpenTripDetailPage() {
         {/* Breadcrumb & Status */}
         <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 lg:p-8 z-10">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <Link href="/open-trip" className="flex items-center text-white hover:text-emerald-400 transition-colors">
+            <Link href="/open-trip" className="flex items-center text-white hover:text-emerald-400 transition-colors text-sm sm:text-base">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Kembali ke Open Trip
+              <span className="hidden sm:inline">Kembali ke Open Trip</span>
+              <span className="sm:hidden">Kembali</span>
             </Link>
-            <span className={`px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm ${status.color}`}>
+            <span className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold backdrop-blur-sm ${status.color}`}>
               {status.label}
             </span>
           </div>
@@ -165,11 +166,11 @@ export default function OpenTripDetailPage() {
         {/* Trip Title */}
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8 z-10">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
               {trip.nama_trip}
             </h1>
             {destination && (
-              <p className="text-xl text-emerald-300 font-semibold flex items-center">
+              <p className="text-base sm:text-lg text-emerald-300 font-semibold flex items-center">
                 <span className="mr-2">📍</span>
                 {destination.nama_destinasi}
                 {destination.ketinggian && ` - ${destination.ketinggian} MDPL`}
@@ -180,104 +181,104 @@ export default function OpenTripDetailPage() {
       </section>
 
       {/* Content */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-slate-900">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6">
               {/* Trip Info Cards */}
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="glass-card rounded-2xl p-6 text-center">
-                  <div className="text-3xl mb-2">📅</div>
-                  <div className="text-sm text-slate-400 mb-1">Tanggal</div>
-                  <div className="text-white font-semibold">{formatDate(trip.tanggal_berangkat)}</div>
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center border border-slate-700/50">
+                  <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">📅</div>
+                  <div className="text-xs text-slate-400 mb-0.5">Tanggal</div>
+                  <div className="text-white font-semibold text-xs sm:text-sm leading-tight">{formatDate(trip.tanggal_berangkat)}</div>
                 </div>
-                <div className="glass-card rounded-2xl p-6 text-center">
-                  <div className="text-3xl mb-2">⏱️</div>
-                  <div className="text-sm text-slate-400 mb-1">Durasi</div>
-                  <div className="text-white font-semibold">{trip.durasi} Hari</div>
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center border border-slate-700/50">
+                  <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">⏱️</div>
+                  <div className="text-xs text-slate-400 mb-0.5">Durasi</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">{trip.durasi} Hari</div>
                 </div>
-                <div className="glass-card rounded-2xl p-6 text-center">
-                  <div className="text-3xl mb-2">👥</div>
-                  <div className="text-sm text-slate-400 mb-1">Peserta</div>
-                  <div className="text-white font-semibold">{trip.pendaftar || 0}/{trip.kuota}</div>
-                  <div className="w-full bg-slate-700 rounded-full h-2 mt-2">
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center border border-slate-700/50">
+                  <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👥</div>
+                  <div className="text-xs text-slate-400 mb-0.5">Peserta</div>
+                  <div className="text-white font-semibold text-sm sm:text-base">{trip.pendaftar || 0}/{trip.kuota}</div>
+                  <div className="w-full bg-slate-700 rounded-full h-1.5 mt-2">
                     <div
-                      className="bg-gradient-to-r from-emerald-600 to-emerald-500 h-2 rounded-full transition-all"
-                      style={{ width: `${((trip.pendaftar || 0) / trip.kuota) * 100}%` }}
+                      className="bg-gradient-to-r from-emerald-600 to-emerald-500 h-1.5 rounded-full transition-all"
+                      style={{ width: `${Math.min(((trip.pendaftar || 0) / trip.kuota) * 100, 100)}%` }}
                     ></div>
                   </div>
                 </div>
               </div>
 
-              {/* Description */}
-              {trip.deskripsi && (
-                <div className="glass-card rounded-3xl p-8">
-                  <h2 className="text-2xl font-bold text-white mb-4">Deskripsi Trip</h2>
-                  <p className="text-slate-300 leading-relaxed whitespace-pre-line">{trip.deskripsi}</p>
-                </div>
-              )}
-
               {/* Destination Info */}
               {destination && (
-                <div className="glass-card rounded-3xl p-8">
-                  <h2 className="text-2xl font-bold text-white mb-6">Tentang Destinasi</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <span className="text-2xl mr-3">🏔️</span>
-                      <div>
-                        <div className="text-white font-semibold">Nama</div>
-                        <div className="text-slate-300">{destination.nama_destinasi}</div>
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-700/50">
+                  <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-5">Tentang Destinasi</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3">
+                      <span className="text-xl sm:text-2xl flex-shrink-0">🏔️</span>
+                      <div className="min-w-0">
+                        <div className="text-white font-semibold text-sm">Nama</div>
+                        <div className="text-slate-300 text-sm">{destination.nama_destinasi}</div>
                       </div>
                     </div>
                     {destination.lokasi && (
-                      <div className="flex items-start">
-                        <span className="text-2xl mr-3">📍</span>
-                        <div>
-                          <div className="text-white font-semibold">Lokasi</div>
-                          <div className="text-slate-300">{destination.lokasi}</div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl sm:text-2xl flex-shrink-0">📍</span>
+                        <div className="min-w-0">
+                          <div className="text-white font-semibold text-sm">Lokasi</div>
+                          <div className="text-slate-300 text-sm break-words">{destination.lokasi}</div>
                         </div>
                       </div>
                     )}
                     {destination.ketinggian && (
-                      <div className="flex items-start">
-                        <span className="text-2xl mr-3">📏</span>
-                        <div>
-                          <div className="text-white font-semibold">Ketinggian</div>
-                          <div className="text-slate-300">{destination.ketinggian} MDPL</div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl sm:text-2xl flex-shrink-0">📏</span>
+                        <div className="min-w-0">
+                          <div className="text-white font-semibold text-sm">Ketinggian</div>
+                          <div className="text-slate-300 text-sm">{destination.ketinggian} MDPL</div>
                         </div>
                       </div>
                     )}
                     {destination.kesulitan && (
-                      <div className="flex items-start">
-                        <span className="text-2xl mr-3">⚡</span>
-                        <div>
-                          <div className="text-white font-semibold">Tingkat Kesulitan</div>
-                          <div className="text-slate-300 capitalize">{destination.kesulitan}</div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl sm:text-2xl flex-shrink-0">⚡</span>
+                        <div className="min-w-0">
+                          <div className="text-white font-semibold text-sm">Tingkat Kesulitan</div>
+                          <div className="text-slate-300 text-sm capitalize">{destination.kesulitan}</div>
                         </div>
                       </div>
                     )}
-                    {destination.deskripsi && (
-                      <div className="mt-6 pt-6 border-t border-slate-700">
-                        <p className="text-slate-300 leading-relaxed">{destination.deskripsi}</p>
-                      </div>
-                    )}
                   </div>
+                  {destination.deskripsi && (
+                    <div className="mt-4 pt-4 border-t border-slate-700/50">
+                      <p className="text-slate-300 text-sm leading-relaxed">{destination.deskripsi}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Description */}
+              {trip.deskripsi && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-700/50">
+                  <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Deskripsi Trip</h2>
+                  <p className="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">{trip.deskripsi}</p>
                 </div>
               )}
             </div>
 
             {/* Sidebar - Booking Card */}
             <div className="lg:col-span-1">
-              <div className="glass-card rounded-3xl p-8 sticky top-24">
-                <div className="mb-6">
-                  <div className="text-4xl font-bold gradient-text mb-2">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-700/50 lg:sticky lg:top-24">
+                <div className="mb-4 sm:mb-5">
+                  <div className="text-2xl sm:text-3xl font-bold text-emerald-400 mb-1">
                     {formatPrice(trip.harga_per_orang)}
                   </div>
-                  <div className="text-slate-400">per orang</div>
+                  <div className="text-slate-400 text-sm">per orang</div>
                 </div>
 
-                <div className="space-y-4 mb-6 pb-6 border-b border-slate-700">
+                <div className="space-y-3 mb-4 sm:mb-5 pb-4 sm:pb-5 border-b border-slate-700/50">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Status</span>
                     <span className={`font-semibold ${status.canRegister ? 'text-green-400' : 'text-slate-400'}`}>
@@ -296,11 +297,11 @@ export default function OpenTripDetailPage() {
                   <button
                     onClick={handleRegister}
                     disabled={registering}
-                    className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-lg rounded-2xl hover:from-emerald-500 hover:to-emerald-600 transition-all shadow-2xl shadow-emerald-600/30 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-sm sm:text-base rounded-xl hover:from-emerald-500 hover:to-emerald-600 transition-all shadow-lg shadow-emerald-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {registering ? (
                       <span className="flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
                         Mendaftar...
                       </span>
                     ) : (
@@ -308,34 +309,34 @@ export default function OpenTripDetailPage() {
                     )}
                   </button>
                 ) : (
-                  <div className="w-full py-4 bg-slate-700 text-slate-400 font-bold text-lg rounded-2xl text-center cursor-not-allowed">
+                  <div className="w-full py-3 sm:py-3.5 bg-slate-700 text-slate-400 font-bold text-sm sm:text-base rounded-xl text-center cursor-not-allowed">
                     Tidak Dapat Mendaftar
                   </div>
                 )}
 
                 {!user && status.canRegister && (
-                  <p className="text-center text-slate-400 text-sm mt-4">
+                  <p className="text-center text-slate-400 text-xs mt-3">
                     Anda akan diarahkan ke halaman login
                   </p>
                 )}
 
-                <div className="mt-6 pt-6 border-t border-slate-700">
-                  <h3 className="text-white font-bold mb-3">Yang Termasuk:</h3>
-                  <ul className="space-y-2 text-sm text-slate-300">
-                    <li className="flex items-start">
-                      <span className="mr-2">✅</span>
+                <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-slate-700/50">
+                  <h3 className="text-white font-bold text-sm mb-3">Yang Termasuk:</h3>
+                  <ul className="space-y-2 text-xs sm:text-sm text-slate-300">
+                    <li className="flex items-center gap-2">
+                      <span className="text-emerald-400">✅</span>
                       <span>Guide berpengalaman</span>
                     </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">✅</span>
+                    <li className="flex items-center gap-2">
+                      <span className="text-emerald-400">✅</span>
                       <span>Izin pendakian</span>
                     </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">✅</span>
+                    <li className="flex items-center gap-2">
+                      <span className="text-emerald-400">✅</span>
                       <span>Asuransi perjalanan</span>
                     </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">✅</span>
+                    <li className="flex items-center gap-2">
+                      <span className="text-emerald-400">✅</span>
                       <span>Dokumentasi</span>
                     </li>
                   </ul>
@@ -345,7 +346,9 @@ export default function OpenTripDetailPage() {
           </div>
 
           {/* Reviews Section */}
-          <ReviewSection tripId={trip.id} tripType="open_trip" />
+          <div className="mt-8 sm:mt-12">
+            <ReviewSection tripId={trip.id} tripType="open_trip" />
+          </div>
         </div>
       </section>
     </div>

@@ -1,65 +1,97 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import { requireAuth } from '@/lib/auth';
 
 export async function POST(request) {
   try {
     const user = await requireAuth();
-    const { destinasi_id, guide_id, tanggal_keberangkatan, jumlah_peserta, catatan, username } = await request.json();
+    const { 
+      destinasi_id, 
+      guide_id, 
+      tanggal_keberangkatan, 
+      tanggal_mulai,
+      tanggal_selesai,
+      jumlah_peserta, 
+      catatan, 
+      budget,
+      nama_kontak,
+      nomor_hp,
+      email
+    } = await request.json();
 
-    if (!destinasi_id || !tanggal_keberangkatan || !jumlah_peserta) {
+    if (!destinasi_id || !jumlah_peserta) {
       return NextResponse.json(
-        { error: 'destinasi_id, tanggal_keberangkatan, dan jumlah_peserta wajib diisi' },
+        { error: 'destinasi_id dan jumlah_peserta wajib diisi' },
         { status: 400 }
       );
     }
 
-    // Get destination name
-    const [destRows] = await pool.query('SELECT nama_destinasi FROM destinations WHERE id = ?', [destinasi_id]);
-    const destinasiName = destRows[0]?.nama_destinasi || `Destinasi ID ${destinasi_id}`;
+    const db = await getDb();
+    
+    // Get destination details
+    let destinasiName = `Destinasi ID ${destinasi_id}`;
+    try {
+      const destination = await db.collection('destinations').findOne({
+        _id: new ObjectId(destinasi_id)
+      });
+      if (destination) {
+        destinasiName = destination.nama_destinasi;
+      }
+    } catch (e) {
+      console.warn('Could not fetch destination name:', e);
+    }
 
     // Get guide name if provided
     let guideName = null;
     if (guide_id) {
-      const [guideRows] = await pool.query('SELECT nama FROM guides WHERE id = ?', [guide_id]);
-      guideName = guideRows[0]?.nama || null;
+      try {
+        const guide = await db.collection('guides').findOne({
+          _id: new ObjectId(guide_id)
+        });
+        if (guide) {
+          guideName = guide.nama;
+        }
+      } catch (e) {
+        console.warn('Could not fetch guide name:', e);
+      }
     }
 
-    const requestData = {
+    // Create trip document with consistent field structure
+    const tripData = {
+      id_user: new ObjectId(user.id),
+      id_destinasi: new ObjectId(destinasi_id),
       destinasi: destinasiName,
+      tanggal_mulai: tanggal_mulai ? new Date(tanggal_mulai) : (tanggal_keberangkatan ? new Date(tanggal_keberangkatan) : null),
+      tanggal_selesai: tanggal_selesai ? new Date(tanggal_selesai) : null,
+      jumlah_peserta: parseInt(jumlah_peserta) || 1,
+      budget: budget ? parseFloat(budget) : null,
+      catatan: catatan || null,
+      nama_kontak: nama_kontak || user.username,
+      nomor_hp: nomor_hp || null,
+      email: email || user.email || null,
+      status: 'pending',
       min_peserta: parseInt(jumlah_peserta) || 1,
-      harga_paket: 0,
-      paket_pilihan: JSON.stringify([]),
-      custom_form: JSON.stringify({
-        username: username || user.username,
+      harga_paket: null,
+      estimasi_biaya: null,
+      dilaksanakan: false,
+      // Keep custom_form for backward compatibility
+      custom_form: {
+        username: user.username,
         guide_id: guide_id || null,
         guide_name: guideName,
-        tanggal_keberangkatan: tanggal_keberangkatan,
+        tanggal_keberangkatan: tanggal_keberangkatan || tanggal_mulai,
         jumlah_peserta: parseInt(jumlah_peserta),
-        catatan: catatan || null,
-        status: 'pending'
-      }),
-      estimasi_biaya: null,
-      dokumentasi: JSON.stringify([]),
-      dilaksanakan: 0
+        catatan: catatan || null
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
-    const [result] = await pool.query(
-      'INSERT INTO private_trips (destinasi, min_peserta, harga_paket, paket_pilihan, custom_form, estimasi_biaya, dokumentasi, dilaksanakan) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        requestData.destinasi,
-        requestData.min_peserta,
-        requestData.harga_paket,
-        requestData.paket_pilihan,
-        requestData.custom_form,
-        requestData.estimasi_biaya,
-        requestData.dokumentasi,
-        requestData.dilaksanakan
-      ]
-    );
+    const result = await db.collection('private_trips').insertOne(tripData);
 
     return NextResponse.json({
-      id: result.insertId,
+      id: result.insertedId.toString(),
       message: 'Permintaan trip berhasil dikirim. Admin akan menghubungi Anda segera.'
     }, { status: 201 });
   } catch (err) {
@@ -73,3 +105,4 @@ export async function POST(request) {
     );
   }
 }
+

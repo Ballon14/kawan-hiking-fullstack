@@ -67,6 +67,7 @@ export async function PUT(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
+    await requireAdmin();
     const { id } = await params;
     const data = await request.json();
 
@@ -115,6 +116,12 @@ export async function PATCH(request, { params }) {
       _id: undefined
     });
   } catch (error) {
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     console.error('PATCH private trip error:', error);
     return NextResponse.json(
       { error: 'Failed to update trip' },
